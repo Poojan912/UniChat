@@ -12,6 +12,7 @@ class _signin_pageState extends State<signin_page> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset : false,
       appBar: AppBar(
         title: Text(
           "UniChat",
