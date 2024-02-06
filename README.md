@@ -16,3 +16,4 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 
 02/05 Poojan Akhani: Creating a new flutter application and create sign in page and create file for further modification.. 
+02/05 Jainil Patel: Implemented sign up page for the application. 
