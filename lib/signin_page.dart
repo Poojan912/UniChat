@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unichat/forgotpassword_page.dart';
 import 'package:unichat/signup_page.dart';
 
 class signin_page extends StatefulWidget {
@@ -59,6 +60,19 @@ class _signin_pageState extends State<signin_page> {
                   },
                   child: Text('Sign In'),
                 )
+            ),
+            Padding(padding: EdgeInsets.only(right: 20.0),
+               child: InkWell(
+                 onTap: (){
+                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => forgotpassword_page()));
+                 },
+                 child: Text(
+                   'Don\'t have account?? Sign Up',textAlign: TextAlign.center,style: TextStyle(
+                   color: Colors.deepPurple, // Adjust the color as needed
+                   decoration: TextDecoration.underline, // Underline to mimic hyperlink
+                 ),
+                 ),
+               ),
             ),
             SizedBox(height: 20.0),
             Text('Or sign in with', textAlign: TextAlign.center),
