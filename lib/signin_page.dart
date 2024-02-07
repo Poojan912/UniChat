@@ -67,7 +67,7 @@ class _signin_pageState extends State<signin_page> {
                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => forgotpassword_page()));
                  },
                  child: Text(
-                   'Don\'t have account?? Sign Up',textAlign: TextAlign.center,style: TextStyle(
+                   'Forgot password',textAlign: TextAlign.right,style: TextStyle(
                    color: Colors.deepPurple, // Adjust the color as needed
                    decoration: TextDecoration.underline, // Underline to mimic hyperlink
                  ),
