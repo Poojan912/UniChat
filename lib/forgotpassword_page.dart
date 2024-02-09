@@ -30,7 +30,17 @@ class _forgotpassword_pageState extends State<forgotpassword_page> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Forgot Password?'),
+          title : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Image.asset('assets/image/image_no_bg.png',width: 60,fit: BoxFit.contain,),
+
+              Text(
+                "UniChat",
+                style: TextStyle(fontSize: 40),
+              )
+            ],
+          ),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -39,8 +49,21 @@ class _forgotpassword_pageState extends State<forgotpassword_page> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Text(
-              'Forgot Password?',
-              style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+              "Forgot Password",
+              style: TextStyle(
+                fontSize: 30, // Size of the text
+                fontWeight: FontWeight.w700, // Thickness of the text
+                color: Colors.black, // Color of the text. You can choose any color that fits your design.
+                letterSpacing: 1.5, // Space between each letter
+                shadows: [
+                  Shadow(
+                    blurRadius: 10.0, // How much the shadow should be blurred
+                    color: Colors.black.withOpacity(0.3), // Color of the shadow
+                    offset: Offset(5, 5), // Horizontal and vertical offset of the shadow
+                  ),
+                ],
+                fontFamily: 'YourCustomFont', // Custom font for your text
+              ),
               textAlign: TextAlign.center,
             ),
             Padding(

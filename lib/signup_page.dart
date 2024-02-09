@@ -14,24 +14,45 @@ class _signup_pageState extends State<signup_page> {
     return Scaffold(
       resizeToAvoidBottomInset : false,
       appBar: AppBar(
-        title: const Text(
-          "UniChat",
-          style: TextStyle(fontSize: 40),
+        title : Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Image.asset('assets/image/image_no_bg.png',width: 60,fit: BoxFit.contain,),
+
+            Text(
+              "UniChat",
+              style: TextStyle(fontSize: 40),
+            )
+          ],
         ),
-        centerTitle: true,
       ),
       body:
 
       Padding(
 
-        padding: const EdgeInsets.only(top: 25.20, left: 20.0, right: 20.0),
+        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            const Text("Sign Up",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
-                textAlign: TextAlign.center),
+            Text(
+              "Sign Up",
+              style: TextStyle(
+                fontSize: 40, // Size of the text
+                fontWeight: FontWeight.w700, // Thickness of the text
+                color: Colors.black, // Color of the text. You can choose any color that fits your design.
+                letterSpacing: 1.5, // Space between each letter
+                shadows: [
+                  Shadow(
+                    blurRadius: 10.0, // How much the shadow should be blurred
+                    color: Colors.black.withOpacity(0.3), // Color of the shadow
+                    offset: Offset(5, 5), // Horizontal and vertical offset of the shadow
+                  ),
+                ],
+                fontFamily: 'YourCustomFont', // Custom font for your text
+              ),
+              textAlign: TextAlign.center,
+            ),
             Padding(
                 padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: TextFormField(
