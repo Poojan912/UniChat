@@ -1,3 +1,6 @@
+import 'dart:js_interop';
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:unichat/forgotpassword_page.dart';
 import 'package:unichat/signup_page.dart';
@@ -78,6 +81,7 @@ class _signin_pageState extends State<signin_page> {
                 child: ElevatedButton(
                   onPressed: () {
                     // Handle Sign-In logic
+                    print("Sign In pressed");
                   },
                   child: Text('Sign In'),
                 )
@@ -104,6 +108,7 @@ class _signin_pageState extends State<signin_page> {
                   label: Text('Google'),
                   onPressed: () {
                     // Handle Google Sign-In logic
+                    print("Google Sign In pressed");
                   },
                 )
             ),
@@ -115,6 +120,7 @@ class _signin_pageState extends State<signin_page> {
                   label: Text('Facebook'),
                   onPressed: () {
                     // Handle Facebook Sign-In logic
+                    print("Facebook Sign In pressed");
                   },
                 )
             ),
@@ -131,7 +137,6 @@ class _signin_pageState extends State<signin_page> {
               ),
             ),
             )
-
           ],
         ),
       ),

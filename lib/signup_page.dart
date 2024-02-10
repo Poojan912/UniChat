@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:unichat/firebase_auth/firebase_auth_service.dart';
 import 'package:unichat/signin_page.dart';
 
 class signup_page extends StatefulWidget {
@@ -9,6 +11,23 @@ class signup_page extends StatefulWidget {
 }
 
 class _signup_pageState extends State<signup_page> {
+
+  final FirebaseAuthService _auth = FirebaseAuthService();
+
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _phonenumberController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() { // creating dispose function to avoid memory leak
+    _usernameController.dispose();
+    _phonenumberController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,6 +75,7 @@ class _signup_pageState extends State<signup_page> {
             Padding(
                 padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: TextFormField(
+                  controller: _usernameController,
                   decoration: const InputDecoration(
                     labelText: 'Full Name',
                     prefixIcon: Icon(Icons.person),
@@ -66,6 +86,7 @@ class _signup_pageState extends State<signup_page> {
             Padding(
                 padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: TextFormField(
+                  controller: _emailController,
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     prefixIcon: Icon(Icons.email),
@@ -76,6 +97,7 @@ class _signup_pageState extends State<signup_page> {
             Padding(
                 padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: TextFormField(
+                  controller: _phonenumberController,
                   decoration: const InputDecoration(
                     labelText: 'Phone No',
                     prefixIcon: Icon(Icons.phone),
@@ -86,6 +108,7 @@ class _signup_pageState extends State<signup_page> {
             Padding(
                 padding: EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: TextFormField(
+                  controller: _passwordController,
                   decoration: const InputDecoration(
                     labelText: 'Password',
                     prefixIcon: Icon(Icons.password),
@@ -100,8 +123,9 @@ class _signup_pageState extends State<signup_page> {
                 child: ElevatedButton(
                   onPressed: () {
                     // Handle Sign-In logic
+                    _signUp();
                   },
-                  child: const Text('Sign In'),
+                  child: const Text('Sign Up'),
                 )
             ),
             const SizedBox(height: 20.0),
@@ -145,5 +169,21 @@ class _signup_pageState extends State<signup_page> {
         ),
       ),
     );
+  }
+
+  void _signUp() async {
+    String username = _usernameController.text;
+    String email = _emailController.text;
+    String password = _passwordController.text;
+    String phone_number = _phonenumberController.text;
+
+    User? user = await _auth.signUpWithEmailAndPassword(email, password);
+
+    if (user != null) {
+      print("User is successully created");
+      Navigator.pushNamed(context, "/home");
+    } else {
+      print("Some error happened");
+    }
   }
 }
