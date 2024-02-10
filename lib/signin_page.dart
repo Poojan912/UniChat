@@ -1,8 +1,10 @@
 import 'dart:js_interop';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:unichat/forgotpassword_page.dart';
+import 'package:unichat/home_page.dart';
 import 'package:unichat/signup_page.dart';
 
 class signin_page extends StatefulWidget {
@@ -13,6 +15,10 @@ class signin_page extends StatefulWidget {
 }
 
 class _signin_pageState extends State<signin_page> {
+
+  TextEditingController _passwordTextController = TextEditingController();
+  TextEditingController _emailTextController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,6 +63,7 @@ class _signin_pageState extends State<signin_page> {
             Padding(
                 padding: EdgeInsets.only(top: 30.0, left: 20.0, right: 20.0),
                 child: TextFormField(
+                  controller: _emailTextController,
                   decoration: InputDecoration(
                     labelText: 'Email',
                     prefixIcon: Icon(Icons.email),
@@ -67,6 +74,7 @@ class _signin_pageState extends State<signin_page> {
             Padding(
                 padding: EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: TextFormField(
+                  controller: _passwordTextController,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     prefixIcon: Icon(Icons.password),
@@ -82,6 +90,15 @@ class _signin_pageState extends State<signin_page> {
                   onPressed: () {
                     // Handle Sign-In logic
                     print("Sign In pressed");
+                    FirebaseAuth.instance.signInWithEmailAndPassword(
+                        email: _emailTextController.text,
+                        password: _passwordTextController.text)
+                        .then((value) {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => HomeScreen()));
+                    }).onError((error, stackTrace) {
+                      print("Error ${error.toString()}");
+                    });
                   },
                   child: Text('Sign In'),
                 )

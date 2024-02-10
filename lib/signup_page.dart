@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:unichat/firebase_auth/firebase_auth_service.dart';
+import 'package:unichat/home_page.dart';
 import 'package:unichat/signin_page.dart';
 
 class signup_page extends StatefulWidget {
@@ -123,7 +124,15 @@ class _signup_pageState extends State<signup_page> {
                 child: ElevatedButton(
                   onPressed: () {
                     // Handle Sign-In logic
-                    _signUp();
+                    FirebaseAuth.instance.createUserWithEmailAndPassword(
+                        email: _emailController.text,
+                        password: _passwordController.text
+                    ).then((value) {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => HomeScreen()));
+                    }).onError((error, stackTrace){
+                      print("Error ${error.toString()}");
+                    });
                   },
                   child: const Text('Sign Up'),
                 )
@@ -181,7 +190,8 @@ class _signup_pageState extends State<signup_page> {
 
     if (user != null) {
       print("User is successully created");
-      Navigator.pushNamed(context, "/home");
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => HomeScreen()));
     } else {
       print("Some error happened");
     }
