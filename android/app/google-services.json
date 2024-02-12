@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "157783120671",
+    "firebase_url": "https://unichat-ca129-default-rtdb.firebaseio.com",
+    "project_id": "unichat-ca129",
+    "storage_bucket": "unichat-ca129.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:157783120671:android:0d04cdefe1d0631e1b2e2a",
+        "android_client_info": {
+          "package_name": "com.example.unichat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdumku6bs2f4ke9pr6WjkhZQp_E1rUB2Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
