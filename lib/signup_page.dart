@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:unichat/signin_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,20 +8,32 @@ class signup_page extends StatefulWidget {
 
   @override
   State<signup_page> createState() => _signup_pageState();
-
 }
 
 class _signup_pageState extends State<signup_page> {
   //final FirebaseAuthService _auth = FirebaseAuthService();
 
-  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _fullnameController = TextEditingController();
   TextEditingController _phonenumberController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
+  late DatabaseReference dbRef;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    dbRef = FirebaseDatabase.instance.ref().child('Users');
+  }
+
+  // final DatabaseReference _userRef =
+  //       FirebaseDatabase.instance.reference().child('users'); // Reference to 'users' node
+
   @override
   void dispose() { // creating dispose function to avoid memory leak
-    _usernameController.dispose();
+    _fullnameController.dispose();
     _phonenumberController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -73,7 +86,7 @@ class _signup_pageState extends State<signup_page> {
             Padding(
                 padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: TextFormField(
-                  controller: _usernameController,
+                  controller: _fullnameController,
                   decoration: const InputDecoration(
                     labelText: 'Full Name',
                     prefixIcon: Icon(Icons.person),
@@ -120,11 +133,19 @@ class _signup_pageState extends State<signup_page> {
                 padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Handle Sign-In logic
+                    // Handle Sign-In logic Authentication
                     FirebaseAuth.instance.createUserWithEmailAndPassword(
                         email: _emailController.text,
                         password: _passwordController.text
                     ).then((value) {
+                      // Realtime Database
+                      Map <String, String> user = {
+                        'fullname': _fullnameController.text,
+                        'email' : _emailController.text,
+                        'phone_number' : _phonenumberController.text,
+                        'password' : _passwordController.text,
+                      };
+                      dbRef.push().set(user);
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User Created Successfully')));
 
                       Navigator.push(context,

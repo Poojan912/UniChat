@@ -99,7 +99,7 @@ class _signin_pageState extends State<signin_page> {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sign In Successful')));
                       // Navigate to your desired page after successful sign-in
                     }).onError((error, stackTrace) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sign In Failed: $error')));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Email/Password wrong')));
                     });
                   },
                   child: Text('Sign In'),
@@ -154,7 +154,6 @@ class _signin_pageState extends State<signin_page> {
               ),
             ),
             )
-
           ],
         ),
       ),

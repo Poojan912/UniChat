@@ -44,41 +44,41 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA1C4G8TUUqCwu2WW6vu5lgSHHADlOEYNA',
-    appId: '1:157783120671:web:6f6a7ba5af3038921b2e2a',
-    messagingSenderId: '157783120671',
-    projectId: 'unichat-ca129',
-    authDomain: 'unichat-ca129.firebaseapp.com',
-    databaseURL: 'https://unichat-ca129-default-rtdb.firebaseio.com',
-    storageBucket: 'unichat-ca129.appspot.com',
+    apiKey: 'AIzaSyClkANjg6xg8Emna-lj0M2buykyZ-hlPt8',
+    appId: '1:997594608982:web:ba2d7ab476a8db6c3092f7',
+    messagingSenderId: '997594608982',
+    projectId: 'unichat-2acd0',
+    authDomain: 'unichat-2acd0.firebaseapp.com',
+    databaseURL: 'https://unichat-2acd0-default-rtdb.firebaseio.com',
+    storageBucket: 'unichat-2acd0.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDdumku6bs2f4ke9pr6WjkhZQp_E1rUB2Q',
-    appId: '1:157783120671:android:0d04cdefe1d0631e1b2e2a',
-    messagingSenderId: '157783120671',
-    projectId: 'unichat-ca129',
-    databaseURL: 'https://unichat-ca129-default-rtdb.firebaseio.com',
-    storageBucket: 'unichat-ca129.appspot.com',
+    apiKey: 'AIzaSyDOfPIFSnd8YyoAfWusuiX0vyKA4ImCi4g',
+    appId: '1:997594608982:android:c56e87565dbc0d343092f7',
+    messagingSenderId: '997594608982',
+    projectId: 'unichat-2acd0',
+    databaseURL: 'https://unichat-2acd0-default-rtdb.firebaseio.com',
+    storageBucket: 'unichat-2acd0.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBtYhLQIiY-Xw4gybERdY6oFiMso0sjUEo',
-    appId: '1:157783120671:ios:ff1b6ed80bbb98051b2e2a',
-    messagingSenderId: '157783120671',
-    projectId: 'unichat-ca129',
-    databaseURL: 'https://unichat-ca129-default-rtdb.firebaseio.com',
-    storageBucket: 'unichat-ca129.appspot.com',
+    apiKey: 'AIzaSyDb-sj1kfgSQsvGq4qtwRspzxWdW5FNcVY',
+    appId: '1:997594608982:ios:600485c59c9b91113092f7',
+    messagingSenderId: '997594608982',
+    projectId: 'unichat-2acd0',
+    databaseURL: 'https://unichat-2acd0-default-rtdb.firebaseio.com',
+    storageBucket: 'unichat-2acd0.appspot.com',
     iosBundleId: 'com.example.unichat',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBtYhLQIiY-Xw4gybERdY6oFiMso0sjUEo',
-    appId: '1:157783120671:ios:0b8eb3f26e6eec8e1b2e2a',
-    messagingSenderId: '157783120671',
-    projectId: 'unichat-ca129',
-    databaseURL: 'https://unichat-ca129-default-rtdb.firebaseio.com',
-    storageBucket: 'unichat-ca129.appspot.com',
+    apiKey: 'AIzaSyDb-sj1kfgSQsvGq4qtwRspzxWdW5FNcVY',
+    appId: '1:997594608982:ios:c9e953e83deb94f53092f7',
+    messagingSenderId: '997594608982',
+    projectId: 'unichat-2acd0',
+    databaseURL: 'https://unichat-2acd0-default-rtdb.firebaseio.com',
+    storageBucket: 'unichat-2acd0.appspot.com',
     iosBundleId: 'com.example.unichat.RunnerTests',
   );
 }
