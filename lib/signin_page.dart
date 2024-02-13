@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:unichat/forgotpassword_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:unichat/home_page.dart';
 import 'package:unichat/signup_page.dart';
 
 class signin_page extends StatefulWidget {
@@ -92,15 +93,20 @@ class _signin_pageState extends State<signin_page> {
                 child: ElevatedButton(
                   onPressed: () {
                     // Handle Sign-In logic
+
                     FirebaseAuth.instance.signInWithEmailAndPassword(
                       email: _emailController.text,
                       password: _passwordController.text,
                     ).then((value) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sign In Successful')));
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>home_page()));
                       // Navigate to your desired page after successful sign-in
                     }).onError((error, stackTrace) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Email/Password wrong')));
                     });
+
+
+
                   },
                   child: Text('Sign In'),
                 )
