@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:unichat/forgotpassword_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:unichat/signup_page.dart';
 
 class signin_page extends StatefulWidget {
@@ -10,6 +11,17 @@ class signin_page extends StatefulWidget {
 }
 
 class _signin_pageState extends State<signin_page> {
+
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,6 +66,7 @@ class _signin_pageState extends State<signin_page> {
             Padding(
                 padding: EdgeInsets.only(top: 30.0, left: 20.0, right: 20.0),
                 child: TextFormField(
+                  controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
                     prefixIcon: Icon(Icons.email),
@@ -64,6 +77,7 @@ class _signin_pageState extends State<signin_page> {
             Padding(
                 padding: EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: TextFormField(
+                  controller: _passwordController,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     prefixIcon: Icon(Icons.password),
@@ -78,6 +92,15 @@ class _signin_pageState extends State<signin_page> {
                 child: ElevatedButton(
                   onPressed: () {
                     // Handle Sign-In logic
+                    FirebaseAuth.instance.signInWithEmailAndPassword(
+                      email: _emailController.text,
+                      password: _passwordController.text,
+                    ).then((value) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sign In Successful')));
+                      // Navigate to your desired page after successful sign-in
+                    }).onError((error, stackTrace) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Email/Password wrong')));
+                    });
                   },
                   child: Text('Sign In'),
                 )
@@ -131,7 +154,6 @@ class _signin_pageState extends State<signin_page> {
               ),
             ),
             )
-
           ],
         ),
       ),
