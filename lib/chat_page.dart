@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:unichat/chat_user.dart';
-
+import 'package:unichat/chatScreen.dart';
 class chat_page extends StatefulWidget {
   const chat_page({super.key});
 
@@ -43,6 +43,12 @@ class _chat_pageState extends State<chat_page> {
           subtitle: Text(user.lastMessage),
           onTap: () {
             // Implement navigation to chat screen with this user
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatScreen(user: user),
+              ),
+            );
           },
         );
       },
