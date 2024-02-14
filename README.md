@@ -21,3 +21,5 @@ samples, guidance on mobile development, and a full API reference.
 02/05 Poojan Akhani : add forgot password link in sign in page and make a forgotpassword page for further implementation
 02/05 jainish shah : create Forgot Password page...
 02/09 Poojan Akhani : changes ui in all pages..
+2/09 Jainish Shah: Firebase connection and Real time database 
+02/13 Jainil Patel: implemented profile page and chatscreen
