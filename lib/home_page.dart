@@ -18,7 +18,7 @@ class _home_pageState extends State<home_page> {
       case 1:
         return call_page();
       case 2:
-        return profile_page();
+        return ProfilePage();
       default:
         return chat_page(); // Default to chat page if index is not recognized
     }
