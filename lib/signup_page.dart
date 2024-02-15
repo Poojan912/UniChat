@@ -137,21 +137,21 @@ class _signup_pageState extends State<signup_page> {
                     FirebaseAuth.instance.createUserWithEmailAndPassword(
                         email: _emailController.text,
                         password: _passwordController.text
-                    ).then((value) {
-                      // Realtime Database
-                      Map <String, String> user = {
+                    ).then((authResult) {
+                      // Use the UID as the key for the user's information
+                      String uid = authResult.user?.uid ?? '';
+                      Map<String, String> userData = {
                         'fullname': _fullnameController.text,
-                        'email' : _emailController.text,
-                        'phone_number' : _phonenumberController.text,
-                        'password' : _passwordController.text,
+                        'email': _emailController.text,
+                        'phone_number': _phonenumberController.text,
+                        // Remove password from here, you should not store passwords in plain text
                       };
-                      dbRef.push().set(user);
+                      dbRef.child(uid!).set(userData); // Using the UID as a key for the user data
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User Created Successfully')));
-
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => signin_page()));
-                    }).onError((error, stackTrace){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => signin_page()));
+                    }).catchError((error) {
                       print("Error ${error.toString()}");
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to create user')));
                     });
                   },
                   child: const Text('Sign In'),
