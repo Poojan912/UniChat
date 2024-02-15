@@ -16,3 +16,8 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 
 02/05 Poojan Akhani: Creating a new flutter application and create sign in page and create file for further modification.. 
+02/05 Jainil Patel: Implemented sign up page for the application. 
+
+02/05 Poojan Akhani : add forgot password link in sign in page and make a forgotpassword page for further implementation
+02/05 jainish shah : create Forgot Password page...
+02/09 Poojan Akhani : changes ui in all pages..
