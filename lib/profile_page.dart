@@ -1,14 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
+import 'UserData.dart';
 class ProfilePage extends StatefulWidget {
   @override
   ProfilePageState createState() => ProfilePageState();
 }
 
 class ProfilePageState extends State<ProfilePage> {
+  late DatabaseReference dbRef;
   File? _image;
+  UserData? _userData;
+  String displayName = "";
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+    dbRef = FirebaseDatabase.instance.ref().child('Users');
+  }
+  Future<void> fetchUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final uid = user.uid;
+      final dbRef = FirebaseDatabase.instance.ref().child('Users').child(uid);
+      final snapshot = await dbRef.get();
+      print("snapshot : ${snapshot}");
+      if (snapshot.exists) {
+        // Adjust the line below to properly cast the data
+        final data = Map<String, dynamic>.from(snapshot.value as Map);
+        setState(() {
+          _userData = UserData.fromMap(data);
+          print(_userData);
+        });
+      } else {
+        print('No user data available.');
+      }
+    }
+  }
+
 
   Future getImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -26,7 +58,7 @@ class ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.purple.shade200,
         title: Text('Your Profile'),
         centerTitle: true,
       ),
@@ -60,7 +92,7 @@ class ProfilePageState extends State<ProfilePage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Jainish Madarchod", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  Text(_userData?.fullName??"User Name", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   Text("Can't talk. Unichat only!", style: TextStyle(fontSize: 18)),
                 ],
               ),
@@ -70,12 +102,12 @@ class ProfilePageState extends State<ProfilePage> {
           Divider(),
           ListTile(
             title: Text('Email'),
-            subtitle: Text('jainishmadarchod@gmail.com'),
+            subtitle: Text(_userData?.email??"@.com"),
             leading: Icon(Icons.email),
           ),
           ListTile(
             title: Text('Phone'),
-            subtitle: Text('+1 415.111.0000'),
+            subtitle: Text(_userData?.phoneNumber??"11"),
             leading: Icon(Icons.phone),
           ),
           ListTile(
