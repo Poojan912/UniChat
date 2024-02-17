@@ -58,9 +58,23 @@ class ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple.shade200,
-        title: Text('Your Profile'),
-        centerTitle: true,
+        backgroundColor: Colors.purple.shade100,
+        title : Row(
+
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Image.asset('assets/image/image_no_bg.png',width: 50,fit: BoxFit.contain,),
+            Spacer(flex: 1),
+            Text(
+              "Your Profile",
+              style: TextStyle(fontSize: 30),
+
+            ),
+            Spacer(),
+
+
+          ],
+        ),
       ),
       body: Column(
         children: <Widget>[
