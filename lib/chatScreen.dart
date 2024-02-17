@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:unichat/chat_user.dart';
 import 'package:unichat/chatMessage.dart'; // Import your ChatMessage model
@@ -12,96 +14,89 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final List<ChatMessage> messages = [
-    // Sample messages, replace with your actual data
-    ChatMessage(sender: 'Jessica', text: 'I hope you like Crazy Alien movie!!!', timestamp: DateTime.now().subtract(Duration(minutes: 5))),
-    ChatMessage(sender: 'me', text: 'Yes of course i like very much. 😊', timestamp: DateTime.now().subtract(Duration(minutes: 3))),
-    // Add more sample messages as needed
-  ];
-
   final TextEditingController _textController = TextEditingController();
+  DatabaseReference? _messagesRef;
+  final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
+  @override
+  void initState() {
+    super.initState();
+    if (currentUserId.isNotEmpty && widget.user.uid != null) {
+      String chatRefId = getChatId(currentUserId, widget.user.uid); // Ensure widget.user has a 'uid' property
+      _messagesRef = FirebaseDatabase.instance.ref('chats/$chatRefId/messages');
+    }
+  }
   void _sendMessage(String text) {
-    if (text.trim().isEmpty) return;
+    // Make sure text is not empty and _messagesRef is initialized
+    if (text.trim().isEmpty || _messagesRef == null) return;
 
-    final message = ChatMessage(
-      sender: 'me',
-      text: text.trim(),
-      timestamp: DateTime.now(),
-    );
+    // Generate a chat ID using both the sender's and receiver's UIDs
+    String chatId = getChatId(currentUserId, widget.user.uid);
 
-    setState(() {
-      messages.add(message);
+    // Use this chat ID to set the message in the correct chat path
+    DatabaseReference chatRef = FirebaseDatabase.instance.ref('chats/$chatId/messages');
+
+    final newMessageRef = chatRef.push();
+    newMessageRef.set({
+      'sender': currentUserId,
+      'receiver': widget.user.uid, // Use the receiver's UID from the ChatUser model
+      'text': text.trim(),
+      'timestamp': ServerValue.timestamp,
     });
 
     _textController.clear();
-    // TODO: Implement your send message logic (API call, socket connection, etc.)
   }
 
+  String getChatId(String senderUid, String receiverUid) {
+    // Sort the UIDs to ensure consistency regardless of who sends the first message
+    List<String> ids = [senderUid, receiverUid];
+    ids.sort(); // This ensures the order is always the same
+    return ids.join('-'); // Create a chat ID by joining the sorted UIDs with a hyphen
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-
-        title: Row(mainAxisSize: MainAxisSize.min,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             CircleAvatar(
-
-              backgroundImage: NetworkImage(widget.user.imageUrl), // Your user's profile image
-              //backgroundColor: Colors.grey, // Placeholder color
+              backgroundImage: NetworkImage(widget.user.imageUrl),
             ),
-            SizedBox(width: 15), // For spacing between the image and the name
-            Text(widget.user.name),
+            SizedBox(width: 15),
+            Text(widget.user.fullname),
           ],
         ),
-
-        backgroundColor: Colors.purple.shade100,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: () {
-              // TODO: Implement more actions
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              reverse: true, // To keep the input field at the bottom and start the chat from the bottom
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final message = messages[messages.length - 1 - index]; // Reverse the message order
-                final bool isMe = message.sender == 'me';
-                return Align(
-                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                    margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: isMe ? Colors.purple : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          message.text,
-                          style: TextStyle(color: isMe ? Colors.white : Colors.black),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          // Format the timestamp into the desired format
-                          "${message.timestamp.hour.toString().padLeft(2, '0')}:${message.timestamp.minute.toString().padLeft(2, '0')} ${isMe ? 'pm' : 'am'}",
-                          style: TextStyle(
-                            color: isMe ? Colors.white70 : Colors.black54,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+            child: StreamBuilder<DatabaseEvent>(
+              stream: _messagesRef?.orderByChild('timestamp').onValue,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+                  return Center(child: Text('No messages'));
+                }
+
+                Map<dynamic, dynamic>? messagesMap = snapshot.data!.snapshot.value as Map<dynamic, dynamic>?;
+
+                if (messagesMap == null) {
+                  return Center(child: Text('No message data available.'));
+                }
+
+                List<MessageWidget> messages = messagesMap.entries.map((entry) {
+                  Map<dynamic, dynamic> messageData = entry.value as Map<dynamic, dynamic>;
+                  return MessageWidget(
+                    text: messageData['text'] ?? '',
+                    isMe: messageData['sender'] == currentUserId,
+                    timestamp: messageData['timestamp'],
+                  );
+                }).toList();
+
+                return ListView.builder(
+                  reverse: true,
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) => messages[index],
                 );
               },
             ),
@@ -109,35 +104,81 @@ class _ChatScreenState extends State<ChatScreen> {
           Divider(height: 1),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 8),
-            color: Colors.white,
             child: Row(
               children: [
-                IconButton(
-                  icon: Icon(Icons.emoji_emotions_outlined),
-                  onPressed: () {
-                    // TODO: Implement emoji functionality
-                  },
-                ),
                 Expanded(
                   child: TextField(
                     controller: _textController,
-                    onSubmitted: _sendMessage,
                     decoration: InputDecoration(
                       hintText: 'Send a message...',
-                      border: InputBorder.none,
                     ),
+
                   ),
                 ),
                 IconButton(
                   icon: Icon(Icons.send),
                   onPressed: () {
-                    _sendMessage(_textController.text);
+                    if (_messagesRef != null) {
+                      _sendMessage(_textController.text);
+                    } else {
+                      // Handle the error, such as prompting the user to log in
+                    }
                   },
                 ),
+
+
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class MessageWidget extends StatelessWidget {
+  final String text;
+  final bool isMe;
+  final int timestamp;
+
+  const MessageWidget({
+    Key? key,
+    required this.text,
+    required this.isMe,
+    required this.timestamp,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final DateTime messageDateTime = timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : DateTime.now();
+    final String displayTime = "${messageDateTime.hour}:${messageDateTime.minute.toString().padLeft(2, '0')}";
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+        decoration: BoxDecoration(
+          color: isMe ? Colors.purple : Colors.grey[300],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            Text(
+              text,
+              style: TextStyle(color: isMe ? Colors.white : Colors.black),
+            ),
+            SizedBox(height: 5),
+            Text(
+
+              DateTime.fromMillisecondsSinceEpoch(timestamp).toString(), // Format timestamp as needed
+              style: TextStyle(
+                color: isMe ? Colors.white70 : Colors.black54,
+                fontSize: 10,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
