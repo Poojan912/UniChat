@@ -27,24 +27,26 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
   void _sendMessage(String text) {
-    // Make sure text is not empty and _messagesRef is initialized
-    if (text.trim().isEmpty || _messagesRef == null) return;
+    if (text.trim().isEmpty || _messagesRef == null) {
+      print('Text is empty or _messagesRef is null');
+      return;
+    }
 
-    // Generate a chat ID using both the sender's and receiver's UIDs
-    String chatId = getChatId(currentUserId, widget.user.uid);
-
-    // Use this chat ID to set the message in the correct chat path
-    DatabaseReference chatRef = FirebaseDatabase.instance.ref('chats/$chatId/messages');
-
-    final newMessageRef = chatRef.push();
+    final newMessageRef = _messagesRef!.push();
     newMessageRef.set({
       'sender': currentUserId,
-      'receiver': widget.user.uid, // Use the receiver's UID from the ChatUser model
+      'receiver': widget.user.uid,
       'text': text.trim(),
       'timestamp': ServerValue.timestamp,
+    }).then((_) {
+      _textController.clear();
+    }).catchError((error) {
+      // Handle errors here
+      print('Error sending message: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$error')),
+      );
     });
-
-    _textController.clear();
   }
 
   String getChatId(String senderUid, String receiverUid) {
