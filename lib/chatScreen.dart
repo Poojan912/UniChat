@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:unichat/chat_user.dart';
-import 'package:unichat/chatMessage.dart'; // Import your ChatMessage model
+import 'package:unichat/ChatMessage.dart'; // Make sure you have this ChatMessage model
 
 class ChatScreen extends StatefulWidget {
   final ChatUser user;
@@ -15,46 +15,9 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
-  DatabaseReference? _messagesRef;
+  CollectionReference _messagesRef = FirebaseFirestore.instance.collection('chats');
   final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-  @override
-  void initState() {
-    super.initState();
-    if (currentUserId.isNotEmpty && widget.user.uid != null) {
-      String chatRefId = getChatId(currentUserId, widget.user.uid); // Ensure widget.user has a 'uid' property
-      _messagesRef = FirebaseDatabase.instance.ref('chats/$chatRefId/messages');
-    }
-  }
-  void _sendMessage(String text) {
-    if (text.trim().isEmpty || _messagesRef == null) {
-      print('Text is empty or _messagesRef is null');
-      return;
-    }
-
-    final newMessageRef = _messagesRef!.push();
-    newMessageRef.set({
-      'sender': currentUserId,
-      'receiver': widget.user.uid,
-      'text': text.trim(),
-      'timestamp': ServerValue.timestamp,
-    }).then((_) {
-      _textController.clear();
-    }).catchError((error) {
-      // Handle errors here
-      print('Error sending message: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$error')),
-      );
-    });
-  }
-
-  String getChatId(String senderUid, String receiverUid) {
-    // Sort the UIDs to ensure consistency regardless of who sends the first message
-    List<String> ids = [senderUid, receiverUid];
-    ids.sort(); // This ensures the order is always the same
-    return ids.join('-'); // Create a chat ID by joining the sorted UIDs with a hyphen
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,30 +36,25 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder<DatabaseEvent>(
-              stream: _messagesRef?.orderByChild('timestamp').onValue,
+            child: StreamBuilder<QuerySnapshot>(
+              // Order the messages by timestamp in ascending order
+              stream: _messagesRef.orderBy('timestamp', descending: false).snapshots(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return Center(child: Text('No messages'));
                 }
 
-                Map<dynamic, dynamic>? messagesMap = snapshot.data!.snapshot.value as Map<dynamic, dynamic>?;
-
-                if (messagesMap == null) {
-                  return Center(child: Text('No message data available.'));
-                }
-
-                List<MessageWidget> messages = messagesMap.entries.map((entry) {
-                  Map<dynamic, dynamic> messageData = entry.value as Map<dynamic, dynamic>;
+                List<MessageWidget> messages = snapshot.data!.docs.map((doc) {
+                  Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
                   return MessageWidget(
-                    text: messageData['text'] ?? '',
-                    isMe: messageData['sender'] == currentUserId,
-                    timestamp: messageData['timestamp'],
+                    text: data['text'] ?? '',
+                    isMe: data['sender'] == currentUserId,
+                    timestamp: data['timestamp'],
                   );
                 }).toList();
 
                 return ListView.builder(
-                  reverse: true,
+                  reverse: false, // Set to false to maintain the order from the stream
                   itemCount: messages.length,
                   itemBuilder: (context, index) => messages[index],
                 );
@@ -114,21 +72,20 @@ class _ChatScreenState extends State<ChatScreen> {
                     decoration: InputDecoration(
                       hintText: 'Send a message...',
                     ),
-
+                    onSubmitted: (text) { // Handle send on keyboard submit
+                      _sendMessage(text);
+                    },
                   ),
                 ),
                 IconButton(
                   icon: Icon(Icons.send),
                   onPressed: () {
-                    if (_messagesRef != null) {
+                    if (_textController.text.trim().isNotEmpty) {
                       _sendMessage(_textController.text);
-                    } else {
-                      // Handle the error, such as prompting the user to log in
+                      _textController.clear();
                     }
                   },
                 ),
-
-
               ],
             ),
           ),
@@ -136,12 +93,33 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+
+  void _sendMessage(String text) {
+    Map<String, dynamic> messageData = {
+      'sender': currentUserId,
+      'receiver': widget.user.uid,
+      'text': text.trim(),
+      'timestamp': FieldValue.serverTimestamp(),
+    };
+
+    _messagesRef.add(messageData).then((docRef) {
+      print('Message sent successfully');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Message sent')),
+      );
+    }).catchError((error) {
+      print('Error sending message: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error sending message: $error')),
+      );
+    });
+  }
 }
 
 class MessageWidget extends StatelessWidget {
   final String text;
   final bool isMe;
-  final int timestamp;
+  final Timestamp timestamp;
 
   const MessageWidget({
     Key? key,
@@ -152,7 +130,7 @@ class MessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime messageDateTime = timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : DateTime.now();
+    final DateTime messageDateTime = timestamp.toDate();
     final String displayTime = "${messageDateTime.hour}:${messageDateTime.minute.toString().padLeft(2, '0')}";
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -172,8 +150,7 @@ class MessageWidget extends StatelessWidget {
             ),
             SizedBox(height: 5),
             Text(
-
-              DateTime.fromMillisecondsSinceEpoch(timestamp).toString(), // Format timestamp as needed
+              displayTime,
               style: TextStyle(
                 color: isMe ? Colors.white70 : Colors.black54,
                 fontSize: 10,
@@ -185,3 +162,5 @@ class MessageWidget extends StatelessWidget {
     );
   }
 }
+
+// Make sure the classes ChatUser and ChatMessage are defined

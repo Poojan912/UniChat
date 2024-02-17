@@ -8,6 +8,8 @@ class call_page extends StatefulWidget {
 }
 
 class _call_pageState extends State<call_page> {
+  List<String> lastCalledUsers = (['User 1']);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,12 +31,39 @@ class _call_pageState extends State<call_page> {
               } ,
               child: Icon(Icons.search,size: 32),
             )
-
-
           ],
         ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: lastCalledUsers.isEmpty
+                ? Center(
+              child: Text('No recent calls'),
+            )
+                : ListView.builder(
+              itemCount: lastCalledUsers.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(lastCalledUsers[index]),
+                  onTap: () {
+                    // Implement logic to initiate call with selected user
+                    // For example, you can navigate to a call screen
+                  },
+                );
+              },
+            ),
+          ),
+          if (lastCalledUsers.isEmpty)
+            ElevatedButton(
+              onPressed: () {
+                // Implement logic to navigate to user search screen
+                // For example, you can navigate to a screen to search for users to call
+              },
+              child: Text('Search for users to call'),
+            ),
+        ],
       ),
     );
   }
 }
-
