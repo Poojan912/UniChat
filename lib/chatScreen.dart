@@ -3,7 +3,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:unichat/chat_user.dart';
 import 'package:unichat/chatMessage.dart'; // Import your ChatMessage model
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 class ChatScreen extends StatefulWidget {
   final ChatUser user;
 
@@ -26,26 +27,44 @@ class _ChatScreenState extends State<ChatScreen> {
       _messagesRef = FirebaseDatabase.instance.ref('chats/$chatRefId/messages');
     }
   }
+  Future<void> sendMessageToDiscord(String message) async {
+    var url = Uri.parse('https://discord.com/api/webhooks/1208475651779338250/FxGlVIeOAYfAZLlt7QG0Jju4NwMzymhR-wNk8SBoDy5L71_TK_pWdhhbJEqq_jb1TL9u');
+    var response = await http.post(url, headers: {
+      "Content-Type": "application/json",
+    }, body: jsonEncode({
+      "content": message
+    }));
+
+    if (response.statusCode == 204) {
+      print("Message sent to Discord successfully");
+    } else {
+      print("Failed to send message to Discord");
+    }
+  }
   void _sendMessage(String text) {
-    // Make sure text is not empty and _messagesRef is initialized
-    if (text.trim().isEmpty || _messagesRef == null) return;
+    if (text.trim().isEmpty || _messagesRef == null) {
+      print('Text is empty or _messagesRef is null');
+      return;
+    }
 
-    // Generate a chat ID using both the sender's and receiver's UIDs
-    String chatId = getChatId(currentUserId, widget.user.uid);
-
-    // Use this chat ID to set the message in the correct chat path
-    DatabaseReference chatRef = FirebaseDatabase.instance.ref('chats/$chatId/messages');
-
-    final newMessageRef = chatRef.push();
+    final newMessageRef = _messagesRef!.push();
     newMessageRef.set({
       'sender': currentUserId,
-      'receiver': widget.user.uid, // Use the receiver's UID from the ChatUser model
+      'receiver': widget.user.uid,
       'text': text.trim(),
       'timestamp': ServerValue.timestamp,
+    }).then((_) async { // Make sure to handle this asynchronously
+      _textController.clear();
+      await sendMessageToDiscord(text.trim()); // Send message to Discord
+    }).catchError((error) {
+      // Handle errors here
+      print('Error sending message: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$error')),
+      );
     });
-
-    _textController.clear();
   }
+
 
   String getChatId(String senderUid, String receiverUid) {
     // Sort the UIDs to ensure consistency regardless of who sends the first message
