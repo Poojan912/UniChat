@@ -90,43 +90,43 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple.shade100,
-        title: Row(children: <Widget>[
-          Image.asset('assets/image/image_no_bg.png',width: 50,fit: BoxFit.contain,),
-          Spacer(flex: 1,),
-          Text(
-            "Chat Page",
-            style: TextStyle(fontSize: 30),
-          ),
+          backgroundColor: Colors.purple.shade100,
+          title: Row(children: <Widget>[
+            Image.asset('assets/image/image_no_bg.png',width: 50,fit: BoxFit.contain,),
+            Spacer(flex: 1,),
+            Text(
+              "Chat Page",
+              style: TextStyle(fontSize: 30),
+            ),
 
             Spacer(),
             IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              // Show a dialog or another screen with a TextField to enter the email
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: Text('Search User by Email'),
-                  content: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(hintText: 'Enter email address'),
-                  ),
-                  actions: [
-                    TextButton(
-                      child: Text('Search'),
-                      onPressed: () {
-                        searchUserByEmail(_searchController.text.trim());
-                        Navigator.of(context).pop();
-                      },
+              icon: Icon(Icons.search),
+              onPressed: () {
+                // Show a dialog or another screen with a TextField to enter the email
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Search User by Email'),
+                    content: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(hintText: 'Enter email address'),
                     ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],)
-    ),
+                    actions: [
+                      TextButton(
+                        child: Text('Search'),
+                        onPressed: () {
+                          searchUserByEmail(_searchController.text.trim());
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],)
+      ),
       body: _chatList.isEmpty
           ? Center(child: Text('No chats yet. Search to start a conversation.'))
           : ListView.builder(
