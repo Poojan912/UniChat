@@ -197,18 +197,3 @@ class _ChatPageState extends State<ChatPage> {
       );
     }
   }
-
-
-void buildChatList() {
-  String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
-  if (currentUserId.isEmpty) {
-    // Handle error: user not logged in...
-    return;
-  }
-
-  // DatabaseReference userConversationsRef = FirebaseDatabase.instance.ref('user-conversations/$currentUserId');
-  // userConversationsRef.onValue.listen((DatabaseEvent event) {
-  //   // Handle the event to build the chat list
-  //   // You would likely need to make additional queries to get user details for each UID in the conversation list
-  // });
-}
