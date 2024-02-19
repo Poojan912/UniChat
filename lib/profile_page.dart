@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:unichat/signin_page.dart';
 
 import 'UserData.dart';
 class ProfilePage extends StatefulWidget {
@@ -54,6 +55,12 @@ class ProfilePageState extends State<ProfilePage> {
       }
     });
   }
+
+  Future<void> logout() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => signin_page()));
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +142,16 @@ class ProfilePageState extends State<ProfilePage> {
             subtitle: Text('USA'),
             leading: Icon(Icons.flag),
           ),
+
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          logout();
+        },
+        child: Icon(Icons.logout),
+        backgroundColor: Colors.purple.shade200,
+        tooltip: 'Logout',
       ),
     );
   }
