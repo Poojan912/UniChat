@@ -41,13 +41,17 @@ class _home_pageState extends State<home_page> {
       resizeToAvoidBottomInset: false,
       body: _getPageWidget(_selectedIndex), // Use the page based on the selected index
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.message),
             label: 'Chat',
           ),
           BottomNavigationBarItem( // ChatScreen now between Chat and Call
-            icon: Icon(Icons.chat),
+            icon: Container(
+              width: 24,
+              height: 24,
+              child: Image.asset('assets/chat_logo.png'),
+            ),
             label: 'AI',
           ),
           BottomNavigationBarItem(
@@ -61,7 +65,7 @@ class _home_pageState extends State<home_page> {
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.blue, // Color for selected item
+        selectedItemColor: Colors.purple, // Color for selected item
         unselectedItemColor: Colors.grey, // Color for unselected items
         backgroundColor: Colors.white, // Background color of the bottom navigation bar
       ),

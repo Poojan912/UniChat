@@ -78,7 +78,7 @@ flutter:
   assets:
      - assets/image/image_no_bg.png
      - assets/image/default_profile_pic.png
-     - assets/
+     - assets/chat_logo.png
 
 
 
