@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:unichat/chat_user.dart';
-import 'package:unichat/chatScreen.dart'; // Make sure this is the correct import for your ChatScreen
+import 'package:unichat/chatScreen.dart'; // Verify this import
 
 class ChatPage extends StatefulWidget {
   @override
@@ -10,18 +10,16 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  List<ChatUser> _chatList = [];
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     buildChatList();
   }
 
-  final DatabaseReference _usersRef = FirebaseDatabase.instance.ref('Users');
-  List<ChatUser> _chatList = [];
-  final TextEditingController _searchController = TextEditingController();
-
   void searchUserByEmail(String email) async {
-
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Email address cannot be empty.")),
@@ -29,37 +27,30 @@ class _ChatPageState extends State<ChatPage> {
       return;
     }
 
-    Query query = _usersRef.orderByChild('email').equalTo(email);
-
     try {
-      DataSnapshot snapshot = await query.get();
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .get();
 
-      if (snapshot.exists) {
-        print("User found in database: ${snapshot.value}");
+      if (querySnapshot.docs.isNotEmpty) {
+        for (var doc in querySnapshot.docs) {
+          Map<String, dynamic> userData = doc.data();
+          ChatUser user = ChatUser(
+            fullname: userData['fullname'] ?? 'Unknown',
+            email: userData['email'] ?? 'No email',
+            imageUrl: userData['imageUrl'] ??
+                'assets/images/default_avatar.png',
+            uid: doc.id,
+          );
 
-        Map<dynamic, dynamic> usersMap = snapshot.value as Map<dynamic, dynamic>;
-        // Inside searchUserByEmail
-
-
-
-        // Assuming that usersMap contains the UID as the key.
-        String uid = usersMap.keys.first;
-        Map<dynamic, dynamic> userData = usersMap[uid];
-
-        ChatUser user = ChatUser(
-          fullname: userData['fullname'] ?? 'Unknown',
-          email: userData['email'] ?? 'No email',
-          imageUrl: userData['imageUrl'] ?? 'assets/images/default_avatar.png',
-          uid: uid,
-        );
-
-        if (!_chatList.any((u) => u.uid == user.uid)) {
-          setState(() {
-            _chatList.add(user);
-          });
+          if (!_chatList.any((u) => u.uid == user.uid)) {
+            setState(() {
+              _chatList.add(user);
+            });
+          }
         }
       } else {
-        print("User not found for email: $email");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("No user found with that email.")),
         );
@@ -67,7 +58,7 @@ class _ChatPageState extends State<ChatPage> {
     } catch (e) {
       print("An error occurred while searching for user: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("$e")),
+        SnackBar(content: Text("Error searching for user: $e")),
       );
     }
   }
@@ -79,80 +70,135 @@ class _ChatPageState extends State<ChatPage> {
       return;
     }
 
-    DatabaseReference userConversationsRef = FirebaseDatabase.instance.ref('user-conversations/$currentUserId');
-    await userConversationsRef.child(otherUserId).set(true);
-    // Also, add the current user to the other user's conversations list
-    DatabaseReference otherUserConversationsRef = FirebaseDatabase.instance.ref('user-conversations/$otherUserId');
-    await otherUserConversationsRef.child(currentUserId).set(true);
+    // Adding to current user's conversations
+    await FirebaseFirestore.instance
+        .collection('user-conversations')
+        .doc(currentUserId)
+        .collection('conversations')
+        .doc(otherUserId)
+        .set({'exists': true});
+
+    // Adding to other user's conversations
+    await FirebaseFirestore.instance
+        .collection('user-conversations')
+        .doc(otherUserId)
+        .collection('conversations')
+        .doc(currentUserId)
+        .set({'exists': true});
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Colors.purple.shade100,
-          title: Row(children: <Widget>[
-            Image.asset('assets/image/image_no_bg.png',width: 50,fit: BoxFit.contain,),
-            Spacer(flex: 1,),
-            Text(
-              "Chat Page",
-              style: TextStyle(fontSize: 30),
-            ),
+  void buildChatList() {
+    String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    if (currentUserId.isEmpty) {
+      // Handle error: user not logged in...
+      return;
+    }
 
-            Spacer(),
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {
-                // Show a dialog or another screen with a TextField to enter the email
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Text('Search User by Email'),
-                    content: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(hintText: 'Enter email address'),
-                    ),
-                    actions: [
-                      TextButton(
-                        child: Text('Search'),
-                        onPressed: () {
-                          searchUserByEmail(_searchController.text.trim());
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
+    FirebaseFirestore.instance
+        .collection('user-conversations')
+        .doc(currentUserId)
+        .collection('conversations')
+        .snapshots()
+        .listen((snapshot) {
+      setState(() {
+        _chatList.clear();
+        snapshot.docs.forEach((doc) async {
+          String otherUserId = doc.id;
+          // Fetch other user's details from 'Users' collection
+          var userDoc = await FirebaseFirestore.instance.collection('users')
+              .doc(otherUserId)
+              .get();
+          if (userDoc.exists) {
+            Map<String, dynamic> userData = userDoc.data()!;
+            ChatUser user = ChatUser(
+              fullname: userData['fullname'] ?? 'Unknown',
+              email: userData['email'] ?? 'No email',
+              imageUrl: userData['imageUrl'] ??
+                  'assets/images/default_avatar.png',
+              uid: otherUserId,
+            );
+            if (!_chatList.any((u) => u.uid == user.uid)) {
+              _chatList.add(user);
+            }
+          }
+        });
+      });
+    });
+  }
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        appBar: AppBar(
+            backgroundColor: Colors.purple.shade100,
+            title: Row(children: <Widget>[
+              Image.asset('assets/image/image_no_bg.png', width: 50,
+                fit: BoxFit.contain,),
+              Spacer(flex: 1,),
+              Text(
+                "Chat Page",
+                style: TextStyle(fontSize: 30),
+              ),
+
+              Spacer(),
+              IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  // Show a dialog or another screen with a TextField to enter the email
+                  showDialog(
+                    context: context,
+                    builder: (context) =>
+                        AlertDialog(
+                          title: Text('Search User by Email'),
+                          content: TextField(
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                                hintText: 'Enter email address'),
+                          ),
+                          actions: [
+                            TextButton(
+                              child: Text('Search'),
+                              onPressed: () {
+                                searchUserByEmail(
+                                    _searchController.text.trim());
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                  );
+                },
+              ),
+            ],)
+        ),
+        body: _chatList.isEmpty
+            ? Center(
+            child: Text('No chats yet. Search to start a conversation.'))
+            : ListView.builder(
+          itemCount: _chatList.length,
+          itemBuilder: (context, index) {
+            final user = _chatList[index];
+            return ListTile(
+              leading: CircleAvatar(
+                backgroundImage: NetworkImage(user.imageUrl),
+              ),
+              title: Text(user.fullname),
+              subtitle: Text(user.email),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatScreen(user: user),
                   ),
                 );
               },
-            ),
-          ],)
-      ),
-      body: _chatList.isEmpty
-          ? Center(child: Text('No chats yet. Search to start a conversation.'))
-          : ListView.builder(
-        itemCount: _chatList.length,
-        itemBuilder: (context, index) {
-          final user = _chatList[index];
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(user.imageUrl),
-            ),
-            title: Text(user.fullname),
-            subtitle: Text(user.email),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatScreen(user: user),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
+            );
+          },
+        ),
+      );
+    }
   }
-}
+
+
 void buildChatList() {
   String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
   if (currentUserId.isEmpty) {
@@ -160,9 +206,9 @@ void buildChatList() {
     return;
   }
 
-  DatabaseReference userConversationsRef = FirebaseDatabase.instance.ref('user-conversations/$currentUserId');
-  userConversationsRef.onValue.listen((DatabaseEvent event) {
-    // Handle the event to build the chat list
-    // You would likely need to make additional queries to get user details for each UID in the conversation list
-  });
+  // DatabaseReference userConversationsRef = FirebaseDatabase.instance.ref('user-conversations/$currentUserId');
+  // userConversationsRef.onValue.listen((DatabaseEvent event) {
+  //   // Handle the event to build the chat list
+  //   // You would likely need to make additional queries to get user details for each UID in the conversation list
+  // });
 }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -11,7 +12,8 @@ class ProfilePage extends StatefulWidget {
 }
 
 class ProfilePageState extends State<ProfilePage> {
-  late DatabaseReference dbRef;
+  late FirebaseFirestore dbRef;
+  final uid = FirebaseAuth.instance.currentUser;
   File? _image;
   UserData? _userData;
   String displayName = "";
@@ -19,27 +21,26 @@ class ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     fetchUserData();
-    dbRef = FirebaseDatabase.instance.ref().child('Users');
+    CollectionReference dbRef = FirebaseFirestore.instance.collection('users');
+
   }
   Future<void> fetchUserData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final uid = user.uid;
-      final dbRef = FirebaseDatabase.instance.ref().child('Users').child(uid);
+      final dbRef = FirebaseFirestore.instance.collection('users').doc(uid);
       final snapshot = await dbRef.get();
-      print("snapshot : ${snapshot}");
-      if (snapshot.exists) {
-        // Adjust the line below to properly cast the data
-        final data = Map<String, dynamic>.from(snapshot.value as Map);
+      if (snapshot.exists && snapshot.data() != null) {
+        final data = Map<String, dynamic>.from(snapshot.data()!);
         setState(() {
           _userData = UserData.fromMap(data);
-          print(_userData);
         });
       } else {
         print('No user data available.');
       }
     }
   }
+
 
 
   Future getImage() async {

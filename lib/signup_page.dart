@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:unichat/signin_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class signup_page extends StatefulWidget {
   const signup_page({super.key});
@@ -11,34 +12,24 @@ class signup_page extends StatefulWidget {
 }
 
 class _signup_pageState extends State<signup_page> {
-  //final FirebaseAuthService _auth = FirebaseAuthService();
-
   TextEditingController _fullnameController = TextEditingController();
   TextEditingController _phonenumberController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
-  late DatabaseReference dbRef;
-
+  // late DatabaseReference dbRef;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final CollectionReference _usersRef = FirebaseFirestore.instance.collection('users');
 
   @override
-  void initState() {
-    super.initState();
-    dbRef = FirebaseDatabase.instance.ref().child('Users');
-  }
-
-  // final DatabaseReference _userRef =
-  //       FirebaseDatabase.instance.reference().child('users'); // Reference to 'users' node
-
-  @override
-  void dispose() { // creating dispose function to avoid memory leak
+  void dispose() {
     _fullnameController.dispose();
     _phonenumberController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +39,6 @@ class _signup_pageState extends State<signup_page> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Image.asset('assets/image/image_no_bg.png',width: 60,fit: BoxFit.contain,),
-
             Text(
               "UniChat",
               style: TextStyle(fontSize: 40),
@@ -56,10 +46,7 @@ class _signup_pageState extends State<signup_page> {
           ],
         ),
       ),
-      body:
-
-      Padding(
-
+      body: Padding(
         padding: const EdgeInsets.only(left: 20.0, right: 20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -144,9 +131,11 @@ class _signup_pageState extends State<signup_page> {
                         'fullname': _fullnameController.text,
                         'email': _emailController.text,
                         'phone_number': _phonenumberController.text,
-                        // Remove password from here, you should not store passwords in plain text
+                        'uid' : uid ,
+                        'password' : _passwordController.text,
+                        'imageUrl': 'https://drive.google.com/file/d/1JNLy9KOPhjrOas7YDC5uwusK9mhjCaOF/view?usp=sharing',
                       };
-                      dbRef.child(uid!).set(userData); // Using the UID as a key for the user data
+                      _usersRef.doc(uid).set(userData); // Using the UID as a key for the user data
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User Created Successfully')));
                       Navigator.push(context, MaterialPageRoute(builder: (context) => signin_page()));
                     }).catchError((error) {
