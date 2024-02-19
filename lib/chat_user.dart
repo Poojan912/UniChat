@@ -6,6 +6,8 @@ class ChatUser {
   final String imageUrl;
   final String uid;
 
+
+
   ChatUser({required this.fullname, required this.email, required this.imageUrl,required this.uid});
 
   factory ChatUser.fromSnapshot(DataSnapshot snapshot) {
@@ -19,4 +21,18 @@ class ChatUser {
       uid : data['uid'] ?? ''
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'fullname': fullname,
+    'email': email,
+    'imageUrl': imageUrl,
+    'uid': uid,
+  };
+
+  static ChatUser fromJson(Map<String, dynamic> json) => ChatUser(
+    fullname: json['fullname'],
+    email: json['email'],
+    imageUrl: json['imageUrl'],
+    uid: json['uid'],
+  );
 }
