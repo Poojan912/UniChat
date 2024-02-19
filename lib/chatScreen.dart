@@ -139,23 +139,43 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Divider(height: 1),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 8),
+            padding: EdgeInsets.only(bottom: 20, left: 20, right: 20),
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: InputDecoration(hintText: 'Send a message...'),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0), // Add padding around the text field
+                    decoration: BoxDecoration(
+                      color: Colors.white, // Change this to your preferred color
+                      borderRadius: BorderRadius.circular(20.0), // Rounded corners for the input field
+                      border: Border.all(color: Colors.grey.shade300), // Add a border to the container
+                    ),
+                    child: TextField(
+                      controller: _textController,
+                      decoration: InputDecoration(
+                        hintText: 'Send a message...',
+                        border: InputBorder.none, // Remove underline
+                        contentPadding: EdgeInsets.symmetric(vertical: 10.0), // Add padding inside the text field
+                      ),
+                    ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () {
-                    _sendMessage(_textController.text);
-                  },
+                SizedBox(width: 8), // Add space between the text field and the send button
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.purple, // Change this to match your app's color scheme
+                    shape: BoxShape.circle, // Circular send button
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.send, color: Colors.white), // Change icon color to contrast with the button
+                    onPressed: () {
+                      _sendMessage(_textController.text);
+                    },
+                  ),
                 ),
               ],
             ),
+
           ),
         ],
       ),
