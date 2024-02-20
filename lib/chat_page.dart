@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:unichat/chat_user.dart';
-import 'package:unichat/chatScreen.dart'; // Verify this import
-import 'dart:convert'; // for jsonEncode and jsonDecode
+import 'package:unichat/chatScreen.dart';
+import 'dart:convert';
 
 
 class ChatPage extends StatefulWidget {
@@ -25,7 +25,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void saveSearchResults() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    // Convert your list of users to a JSON string
+
     List<String> usersJson = _chatList.map((user) => jsonEncode(user.toJson())).toList();
     await prefs.setStringList('searched_users', usersJson);
   }
@@ -112,7 +112,6 @@ class _ChatPageState extends State<ChatPage> {
   void buildChatList() {
     String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
     if (currentUserId.isEmpty) {
-      // Handle error: user not logged in...
       return;
     }
 
@@ -126,7 +125,6 @@ class _ChatPageState extends State<ChatPage> {
         _chatList.clear();
         snapshot.docs.forEach((doc) async {
           String otherUserId = doc.id;
-          // Fetch other user's details from 'Users' collection
           var userDoc = await FirebaseFirestore.instance.collection('users')
               .doc(otherUserId)
               .get();
@@ -165,7 +163,7 @@ class _ChatPageState extends State<ChatPage> {
             IconButton(
               icon: Icon(Icons.search),
               onPressed: () {
-                // Show a dialog or another screen with a TextField to enter the email
+
                 showDialog(
                   context: context,
                   builder: (context) =>
