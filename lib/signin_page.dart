@@ -49,18 +49,18 @@ class _signin_pageState extends State<signin_page> {
             Text(
               "Login",
               style: TextStyle(
-                fontSize: 40, // Size of the text
-                fontWeight: FontWeight.w700, // Thickness of the text
-                color: Colors.black, // Color of the text. You can choose any color that fits your design.
-                letterSpacing: 1.5, // Space between each letter
+                fontSize: 40,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+                letterSpacing: 1.5,
                 shadows: [
                   Shadow(
-                    blurRadius: 10.0, // How much the shadow should be blurred
-                    color: Colors.black.withOpacity(0.3), // Color of the shadow
-                    offset: Offset(5, 5), // Horizontal and vertical offset of the shadow
+                    blurRadius: 10.0,
+                    color: Colors.black.withOpacity(0.3),
+                    offset: Offset(5, 5),
                   ),
                 ],
-                fontFamily: 'YourCustomFont', // Custom font for your text
+                fontFamily: "Arial",
               ),
               textAlign: TextAlign.center,
             ),
@@ -100,7 +100,7 @@ class _signin_pageState extends State<signin_page> {
                     ).then((value) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sign In Successful')));
                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>home_page()));
-                      // Navigate to your desired page after successful sign-in
+
                     }).onError((error, stackTrace) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Email/Password wrong')));
                     });
@@ -118,8 +118,8 @@ class _signin_pageState extends State<signin_page> {
                  },
                  child: Text(
                    'Forgot password',textAlign: TextAlign.right,style: TextStyle(
-                   color: Colors.deepPurple, // Adjust the color as needed
-                   decoration: TextDecoration.underline, // Underline to mimic hyperlink
+                   color: Colors.deepPurple,
+                   decoration: TextDecoration.underline,
                  ),
                  ),
                ),
@@ -129,7 +129,7 @@ class _signin_pageState extends State<signin_page> {
             Padding(
                 padding: EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: ElevatedButton.icon(
-                  icon: Icon(Icons.email), // Placeholder icon for Google
+                  icon: Icon(Icons.email),
                   label: Text('Google'),
                   onPressed: () {
                     // Handle Google Sign-In logic
@@ -154,8 +154,8 @@ class _signin_pageState extends State<signin_page> {
               },
               child: Text(
                 'Don\'t have account?? Sign Up',textAlign: TextAlign.center,style: TextStyle(
-                color: Colors.deepPurple, // Adjust the color as needed
-                decoration: TextDecoration.underline, // Underline to mimic hyperlink
+                color: Colors.deepPurple,
+                decoration: TextDecoration.underline,
               ),
               ),
             ),

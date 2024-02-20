@@ -91,12 +91,12 @@ class ProfilePageState extends State<ProfilePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(width: 20), // For padding on the left
+              SizedBox(width: 20),
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
                   CircleAvatar(
-                    radius: 40, // Smaller radius for a smaller profile image
+                    radius: 40,
                     backgroundImage: _image != null ? FileImage(_image!) : AssetImage('assets/image/default_profile_pic.png') as ImageProvider,
                     backgroundColor: Colors.transparent,
                   ),
@@ -105,12 +105,12 @@ class ProfilePageState extends State<ProfilePage> {
                       getImage();
                     },
                     icon: Icon(Icons.edit, size: 20),
-                    padding: EdgeInsets.all(0), // Removes default padding
-                    constraints: BoxConstraints(), // Removes default size constraints
+                    padding: EdgeInsets.all(0),
+                    constraints: BoxConstraints(),
                   ),
                 ],
               ),
-              SizedBox(width: 20), // For spacing between the image and the name
+              SizedBox(width: 20),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

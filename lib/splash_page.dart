@@ -19,7 +19,7 @@ class _splash_pageState extends State<splash_page> with SingleTickerProviderStat
 
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 1), // Adjusted duration to 1 second
+      duration: Duration(seconds: 1),
     );
 
     _scaleAnimation = Tween<double>(begin: 0, end: 1).animate(_animationController);
@@ -28,8 +28,8 @@ class _splash_pageState extends State<splash_page> with SingleTickerProviderStat
   }
 
   _navigateToHome() async {
-    await Future.delayed(Duration(seconds: 2), () {}); // Wait for 2 seconds, adjusted delay
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => signin_page())); // Navigate to SignInPage
+    await Future.delayed(Duration(seconds: 2), () {});
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => signin_page()));
   }
 
   @override
@@ -40,7 +40,7 @@ class _splash_pageState extends State<splash_page> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    _animationController.forward(); // Start the animation
+    _animationController.forward();
 
     return Scaffold(
       body: Center(
@@ -54,8 +54,8 @@ class _splash_pageState extends State<splash_page> with SingleTickerProviderStat
               child: Image.asset(
                 'assets/image/image_no_bg.png',
                 fit: BoxFit.fitHeight,
-                height: 250, // Adjusted the size to 250
-                width: 250,  // Adjusted the size to 250
+                height: 250,
+                width: 250,
               ),
             ),
           ),

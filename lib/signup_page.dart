@@ -55,18 +55,18 @@ class _signup_pageState extends State<signup_page> {
             Text(
               "Sign Up",
               style: TextStyle(
-                fontSize: 40, // Size of the text
-                fontWeight: FontWeight.w700, // Thickness of the text
-                color: Colors.black, // Color of the text. You can choose any color that fits your design.
-                letterSpacing: 1.5, // Space between each letter
+                fontSize: 40,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+                letterSpacing: 1.5,
                 shadows: [
                   Shadow(
-                    blurRadius: 10.0, // How much the shadow should be blurred
-                    color: Colors.black.withOpacity(0.3), // Color of the shadow
-                    offset: Offset(5, 5), // Horizontal and vertical offset of the shadow
+                    blurRadius: 10.0,
+                    color: Colors.black.withOpacity(0.3),
+                    offset: Offset(5, 5),
                   ),
                 ],
-                fontFamily: 'YourCustomFont', // Custom font for your text
+                fontFamily: "Arial",
               ),
               textAlign: TextAlign.center,
             ),
@@ -135,7 +135,7 @@ class _signup_pageState extends State<signup_page> {
                         'password' : _passwordController.text,
                         'imageUrl': 'https://drive.google.com/file/d/1JNLy9KOPhjrOas7YDC5uwusK9mhjCaOF/view?usp=sharing',
                       };
-                      _usersRef.doc(uid).set(userData); // Using the UID as a key for the user data
+                      _usersRef.doc(uid).set(userData);
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User Created Successfully')));
                       Navigator.push(context, MaterialPageRoute(builder: (context) => signin_page()));
                     }).catchError((error) {
@@ -151,7 +151,7 @@ class _signup_pageState extends State<signup_page> {
             Padding(
                 padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: ElevatedButton.icon(
-                  icon: const Icon(Icons.email), // Placeholder icon for Google
+                  icon: const Icon(Icons.email),
                   label: const Text('Google'),
                   onPressed: () {
                     // Handle Google Sign-In logic
@@ -162,7 +162,7 @@ class _signup_pageState extends State<signup_page> {
             Padding(
                 padding: const EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
                 child: ElevatedButton.icon(
-                  icon: const Icon(Icons.facebook), // Placeholder icon for Facebook
+                  icon: const Icon(Icons.facebook),
                   label: const Text('Facebook'),
                   onPressed: () {
                     // Handle Facebook Sign-In logic
@@ -176,8 +176,8 @@ class _signup_pageState extends State<signup_page> {
                 },
                 child: const Text(
                   'Already have account?? Sign In',textAlign: TextAlign.center,style: TextStyle(
-                  color: Colors.deepPurple, // Adjust the color as needed
-                  decoration: TextDecoration.underline, // Underline to mimic hyperlink
+                  color: Colors.deepPurple,
+                  decoration: TextDecoration.underline,
                 ),
                 ),
               ),

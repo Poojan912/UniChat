@@ -85,30 +85,6 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  // Future<void> addToUserConversations(String otherUserId) async {
-  //   String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
-  //   if (currentUserId.isEmpty) {
-  //     // Handle error: user not logged in...
-  //     return;
-  //   }
-  //
-  //   // Adding to current user's conversations
-  //   await FirebaseFirestore.instance
-  //       .collection('user-conversations')
-  //       .doc(currentUserId)
-  //       .collection('conversations')
-  //       .doc(otherUserId)
-  //       .set({'exists': true});
-  //
-  //   // Adding to other user's conversations
-  //   await FirebaseFirestore.instance
-  //       .collection('user-conversations')
-  //       .doc(otherUserId)
-  //       .collection('conversations')
-  //       .doc(currentUserId)
-  //       .set({'exists': true});
-  // }
-
   void buildChatList() {
     String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
     if (currentUserId.isEmpty) {

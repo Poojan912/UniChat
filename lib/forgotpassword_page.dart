@@ -19,10 +19,8 @@ class _forgotpassword_pageState extends State<forgotpassword_page> {
 
 
   void _sendPasswordResetEmail() {
-    // Add your email sending logic here
     String email = _emailController.text;
     print('Send password reset link to $email');
-    // here there is use of service like Firebase Auth to send the password reset email
   }
 
 
@@ -51,15 +49,15 @@ class _forgotpassword_pageState extends State<forgotpassword_page> {
             Text(
               "Forgot Password",
               style: TextStyle(
-                fontSize: 30, // Size of the text
-                fontWeight: FontWeight.w700, // Thickness of the text
-                color: Colors.black, // Color of the text. You can choose any color that fits your design.
-                letterSpacing: 1.5, // Space between each letter
+                fontSize: 30,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+                letterSpacing: 1.5,
                 shadows: [
                   Shadow(
-                    blurRadius: 10.0, // How much the shadow should be blurred
-                    color: Colors.black.withOpacity(0.3), // Color of the shadow
-                    offset: Offset(5, 5), // Horizontal and vertical offset of the shadow
+                    blurRadius: 10.0,
+                    color: Colors.black.withOpacity(0.3),
+                    offset: Offset(5, 5), 
                   ),
                 ],
                 fontFamily: 'YourCustomFont', // Custom font for your text

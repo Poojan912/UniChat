@@ -27,7 +27,7 @@ class _call_pageState extends State<call_page> {
             Spacer(),
             InkWell(
               onTap: (){
-                //handle search function
+
               } ,
               child: Icon(Icons.search,size: 32),
             )
@@ -48,7 +48,7 @@ class _call_pageState extends State<call_page> {
                   title: Text(lastCalledUsers[index]),
                   onTap: () {
                     // Implement logic to initiate call with selected user
-                    // For example, you can navigate to a call screen
+
                   },
                 );
               },
@@ -58,7 +58,7 @@ class _call_pageState extends State<call_page> {
             ElevatedButton(
               onPressed: () {
                 // Implement logic to navigate to user search screen
-                // For example, you can navigate to a screen to search for users to call
+
               },
               child: Text('Search for users to call'),
             ),

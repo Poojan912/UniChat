@@ -79,6 +79,8 @@ flutter:
      - assets/image/image_no_bg.png
      - assets/image/default_profile_pic.png
      - assets/chat_logo.png
+     - assets/openai_logo.jpg
+     - assets/person.png
 
 
 
