@@ -19,13 +19,13 @@ class _home_pageState extends State<home_page> {
       case 0:
         return ChatPage();
       case 1:
-        return ChatScreen(); // ChatScreen now in second position
+        return ChatScreen();
       case 2:
-        return call_page(); // call_page moved to third position
+        return call_page();
       case 3:
         return ProfilePage();
       default:
-        return ChatPage(); // Default to chat page if index is not recognized
+        return ChatPage();
     }
   }
 
@@ -39,14 +39,14 @@ class _home_pageState extends State<home_page> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: _getPageWidget(_selectedIndex), // Use the page based on the selected index
+      body: _getPageWidget(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.message),
             label: 'Chat',
           ),
-          BottomNavigationBarItem( // ChatScreen now between Chat and Call
+          BottomNavigationBarItem(
             icon: Container(
               width: 24,
               height: 24,
@@ -65,9 +65,9 @@ class _home_pageState extends State<home_page> {
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.purple, // Color for selected item
-        unselectedItemColor: Colors.grey, // Color for unselected items
-        backgroundColor: Colors.white, // Background color of the bottom navigation bar
+        selectedItemColor: Colors.purple,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
       ),
     );
   }
