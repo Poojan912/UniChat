@@ -28,3 +28,4 @@ further implementation
 2/09 Jainish Shah: Firebase connection and Real time database
 2/12 Maharshi Prajapati: Implemented the UI of the chatGPT application. 
 02/13 Jainil Patel: implemented profile page and chatscreen
+02/17 Jainil Patel: implemented dicord webhook
