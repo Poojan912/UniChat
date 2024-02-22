@@ -1,8 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:unichat/home_page.dart';
 import 'package:unichat/signin_page.dart';
 import 'package:unichat/splash_page.dart';
 
+import 'chatScreen.dart';
 import 'firebase_options.dart';
 
 void main() {

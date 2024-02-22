@@ -7,6 +7,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:unichat/widgets/chat_widget.dart';
 import 'package:unichat/widgets/text_widget.dart';
 import '../constants/constant.dart';
+import '../services/api_service.dart';
 import '../services/assets_manager.dart';
 import '../services/services.dart';
 
@@ -94,7 +95,13 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                       ),
                       IconButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            try{
+                              ApiService.getModels();
+                            }catch(error){
+                              print("error $error");
+                            }
+                            },
                           icon: const Icon(
                             Icons.send,
                             color: Colors.white,
