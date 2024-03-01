@@ -1,53 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:unichat/models/model_model.dart';
+import 'package:unichat/services/api_service.dart';
 import 'package:unichat/widgets/text_widget.dart';
 
 import '../constants/constant.dart';
 
-import '../models/model_model.dart';
-
-import '../services/api_service.dart';
-
 class ModelsDrowDownWidget extends StatefulWidget {
-  const ModelsDrowDownWidget({super.key});
+  const ModelsDrowDownWidget({Key? key});
 
   @override
   State<ModelsDrowDownWidget> createState() => _ModelsDrowDownWidgetState();
 }
 
 class _ModelsDrowDownWidgetState extends State<ModelsDrowDownWidget> {
-  String currentModel = "text-davinci-003";
+  String currentModel = "gpt-4-vision-preview";
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<ModelsModel>>(
-        future: ApiService.getModels(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: TextWidget(label: snapshot.error.toString()),
-            );
-          }
-          return snapshot.data == null || snapshot.data!.isEmpty
-              ? const SizedBox.shrink()
-              : FittedBox(
-            child: DropdownButton(
-              dropdownColor: scaffoldBackgroundColor,
-              iconEnabledColor: Colors.white,
-              items: List<DropdownMenuItem<String>>.generate(
-                  snapshot.data!.length,
-                      (index) => DropdownMenuItem(
-                      value: snapshot.data![index].id,
-                      child: TextWidget(
-                        label: snapshot.data![index].id,
-                        fontSize: 15,
-                      ))),
-              value: currentModel,
-              onChanged: (value) {
-                setState(() {
-                  currentModel = value.toString();
-                });
-              },
-            ),
+      future: ApiService.getModels(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: TextWidget(label: snapshot.error.toString()),
           );
-        });
+        }
+        if (snapshot.data == null || snapshot.data!.isEmpty) {
+          return SizedBox.shrink();
+        }
+        return DropdownButton(
+          dropdownColor: scaffoldBackgroundColor,
+          iconEnabledColor: Colors.white,
+          items: List<DropdownMenuItem<String>>.generate(
+            snapshot.data!.length,
+                (index) => DropdownMenuItem(
+              value: snapshot.data![index].id,
+              child: TextWidget(
+                label: snapshot.data![index].id,
+                fontSize: 15,
+              ),
+            ),
+          ),
+          value: currentModel,
+          onChanged: (value) {
+            setState(() {
+              currentModel = value.toString();
+            });
+          },
+        );
+      },
+    );
   }
 }
