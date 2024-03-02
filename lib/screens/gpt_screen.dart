@@ -1,12 +1,16 @@
 //import 'dart:ui_web';
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
 import 'package:unichat/widgets/chat_widget.dart';
 import 'package:unichat/widgets/text_widget.dart';
 import '../constants/constant.dart';
+import '../provider/models_provider.dart';
 import '../services/api_service.dart';
 import '../services/assets_manager.dart';
 import '../services/services.dart';
@@ -37,6 +41,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final modelsProvider = Provider.of<ModelsProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         elevation: 2,
@@ -96,12 +102,15 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       IconButton(
                           onPressed: () async {
-                            try{
-                              ApiService.getModels();
-                            }catch(error){
-                              print("error $error");
+                            try {
+                              log("Request sent?????????????????????????????????????????????????????????????????????????????????????????");
+                              ApiService.sendMessage(
+                                  message: textEditingController.text,
+                                  modelId: modelsProvider.currentModel,);
+                            } catch (error) {
+                              log("error $error");
                             }
-                            },
+                          },
                           icon: const Icon(
                             Icons.send,
                             color: Colors.white,
