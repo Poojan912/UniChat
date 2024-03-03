@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import '../constants/api_consts.dart';
+import '../models/chat_model.dart';
 import '../models/model_model.dart';
 
 class ApiService {
@@ -35,7 +36,7 @@ class ApiService {
   }
 
   // Send Message fct
-  static Future<void> sendMessage(
+  static Future<List<ChatModel>> sendMessage(
       {required String message, required String modelId}) async {
     try {
       var response = await http.post(
@@ -47,7 +48,9 @@ class ApiService {
         body: jsonEncode(
           {
             "model": modelId,
-            "messages": [{"role": "user", "content": message}],
+            "messages": [
+              {"role": "user", "content": message}
+            ],
             "temperature": 0.7,
           },
         ),
@@ -60,9 +63,18 @@ class ApiService {
         throw HttpException(jsonResponse['error']["message"]);
       }
 
+      List<ChatModel> chatList = [];
       if (jsonResponse["choices"].length > 0) {
-        log("jsonResponse[choices]text ${jsonResponse["choices"][0]["message"]}");
+        chatList = List.generate(
+          jsonResponse["choices"].length,
+          (index) => ChatModel(
+            msg: jsonResponse['error'][index]["message"],
+            chatIndex: 1,
+          ),
+        );
+        // log("jsonResponse[choices]text ${jsonResponse["choices"][0]["message"]}");
       }
+      return chatList;
     } catch (error) {
       log("error $error");
       rethrow;
