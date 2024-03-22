@@ -48,6 +48,7 @@ class ApiService {
         body: jsonEncode(
           {
             "model": modelId,
+            // "messages": "what is flutter?",
             "messages": [
               {"role": "user", "content": message}
             ],
@@ -68,7 +69,7 @@ class ApiService {
         chatList = List.generate(
           jsonResponse["choices"].length,
           (index) => ChatModel(
-            msg: jsonResponse['error'][index]["message"],
+            msg: jsonResponse["choices"][index]["message"]["content"],
             chatIndex: 1,
           ),
         );

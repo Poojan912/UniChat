@@ -27,16 +27,19 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isTyping = false;
 
   late TextEditingController textEditingController;
+  late FocusNode focusNode;
 
   @override
   void initState() {
     textEditingController = TextEditingController();
+    // focusNode = FocusNode();
     super.initState();
   }
 
   @override
   void dispose() {
     textEditingController.dispose();
+    // focusNode.dispose();
     super.dispose();
   }
 
@@ -71,9 +74,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemCount: chatList.length,
                   itemBuilder: (context, index) {
                     return ChatWidget(
-                        msg: chatList[index].msg,
-                        chatIndex:
-                        chatList[index].chatIndex,
+                      msg: chatList[index].msg,
+                      chatIndex: chatList[index].chatIndex,
                     );
                   }),
             ),
@@ -94,10 +96,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Expanded(
                       child: TextField(
+                        // focusNode: focusNode,
                         style: const TextStyle(color: Colors.white),
                         controller: textEditingController,
                         onSubmitted: (value) async {
-                          await sendMessageFCT(modelsProvider: modelsProvider,);
+                          await sendMessageFCT(
+                            modelsProvider: modelsProvider,
+                          );
                         },
                         decoration: const InputDecoration.collapsed(
                             hintText: "How can I help you?",
@@ -106,7 +111,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     IconButton(
                         onPressed: () async {
-                          await sendMessageFCT(ModelsProvider: modelsProvider,);
+                          await sendMessageFCT(
+                            modelsProvider: modelsProvider,
+                          );
                         },
                         icon: const Icon(
                           Icons.send,
@@ -122,16 +129,38 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<void> sendMessageFCT( ModelsProvider modelsProvider) async {
+  void printChatList(List<ChatModel> chatList) {
+    for (ChatModel chatModel in chatList) {
+      print(chatModel.msg);
+      print("**********");
+    }
+  }
+
+  late String messg;
+
+  // Ensure this function definition is inside your class or an appropriate scope.
+  Future<void> sendMessageFCT({required ModelsProvider modelsProvider}) async {
     try {
       setState(() {
         _isTyping = true;
-      });
-      chatList = await ApiService.sendMessage(
-        message: textEditingController.text,
-        modelId: modelsProvider.currentModel,);
-      setState(() {
+        chatList.add(ChatModel(msg: textEditingController.text, chatIndex: 0));
+        print(
+            "################################################################");
+        printChatList(chatList);
+        print(
+            "################################################################");
+        messg = textEditingController.text;
+        textEditingController.clear();
+        // focusNode.unfocus();
 
+      });
+      // Assuming ApiService.sendMessage expects a String message and a model ID.
+      chatList.addAll(await ApiService.sendMessage(
+        message: messg,
+        modelId: modelsProvider.currentModel,
+      ));
+      setState(() {
+        // textEditingController.clear();
       });
     } catch (error) {
       log("error $error");
@@ -142,3 +171,22 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 }
+
+// Future<void> sendMessageFCT(ModelsProvider modelsProvider) async {
+//   try {
+//     setState(() {
+//       _isTyping = true;
+//     });
+//     chatList = await ApiService.sendMessage(
+//       message: textEditingController.text,
+//       modelId: modelsProvider.currentModel,
+//     );
+//     setState(() {});
+//   } catch (error) {
+//     log("error $error");
+//   } finally {
+//     setState(() {
+//       _isTyping = false;
+//     });
+//   }
+// }
