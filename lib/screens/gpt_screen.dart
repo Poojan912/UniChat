@@ -28,18 +28,22 @@ class _ChatScreenState extends State<ChatScreen> {
 
   late TextEditingController textEditingController;
   late FocusNode focusNode;
+  late ScrollController _listScrollController;
+  late String messg;
 
   @override
   void initState() {
+    _listScrollController = ScrollController();
     textEditingController = TextEditingController();
-    // focusNode = FocusNode();
+    focusNode = FocusNode();
     super.initState();
   }
 
   @override
   void dispose() {
+    _listScrollController.dispose();
     textEditingController.dispose();
-    // focusNode.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -71,6 +75,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Flexible(
               child: ListView.builder(
+                  controller: _listScrollController,
                   itemCount: chatList.length,
                   itemBuilder: (context, index) {
                     return ChatWidget(
@@ -96,7 +101,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Expanded(
                       child: TextField(
-                        // focusNode: focusNode,
+                        focusNode: focusNode,
                         style: const TextStyle(color: Colors.white),
                         controller: textEditingController,
                         onSubmitted: (value) async {
@@ -136,7 +141,15 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  late String messg;
+
+
+  void scrollListToEnd() {
+    _listScrollController.animateTo(
+      _listScrollController.position.maxScrollExtent,
+      duration: const Duration(seconds: 1),
+      curve: Curves.slowMiddle,
+    );
+  }
 
   // Ensure this function definition is inside your class or an appropriate scope.
   Future<void> sendMessageFCT({required ModelsProvider modelsProvider}) async {
@@ -151,7 +164,7 @@ class _ChatScreenState extends State<ChatScreen> {
             "################################################################");
         messg = textEditingController.text;
         textEditingController.clear();
-        // focusNode.unfocus();
+        focusNode.unfocus();
 
       });
       // Assuming ApiService.sendMessage expects a String message and a model ID.
@@ -166,6 +179,7 @@ class _ChatScreenState extends State<ChatScreen> {
       log("error $error");
     } finally {
       setState(() {
+        scrollListToEnd();
         _isTyping = false;
       });
     }
