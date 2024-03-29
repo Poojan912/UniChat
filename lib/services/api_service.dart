@@ -39,23 +39,47 @@ class ApiService {
   static Future<List<ChatModel>> sendMessage(
       {required String message, required String modelId}) async {
     try {
-      var response = await http.post(
-        Uri.parse("$BASE_URL/chat/completions"),
-        headers: {
-          'Authorization': 'Bearer $API_Key',
-          "Content-Type": "application/json"
-        },
-        body: jsonEncode(
-          {
-            "model": modelId,
-            // "messages": "what is flutter?",
-            "messages": [
-              {"role": "user", "content": message}
-            ],
-            "temperature": 0.7,
+      var response;
+      if (modelId == "dall-e-3") {
+        response = await http.post(
+          Uri.parse("$BASE_URL/images/generations"),
+          headers: {
+            'Authorization': 'Bearer $API_Key',
+            "Content-Type": "application/json"
           },
-        ),
-      );
+          body: jsonEncode(
+            {
+              "model": "dall-e-3",
+              "prompt": message,
+              "n": 1,
+              "size": "1024x1024"
+            },
+          ),
+        );
+      } else {
+        response = await http.post(
+          Uri.parse("$BASE_URL/chat/completions"),
+          headers: {
+            'Authorization': 'Bearer $API_Key',
+            "Content-Type": "application/json"
+          },
+          body: jsonEncode(
+            {
+              "model": modelId,
+              // "messages": "what is flutter?",
+              "messages": [
+                {"role": "user", "content": message}
+              ],
+              "temperature": 0.7,
+            },
+          ),
+        );
+      }
+
+      print("+++++++++++++++++++++=");
+      print(response);
+      print("+++++++++++++++++++++=");
+
 
       Map jsonResponse = jsonDecode(response.body);
 
@@ -65,15 +89,30 @@ class ApiService {
       }
 
       List<ChatModel> chatList = [];
-      if (jsonResponse["choices"].length > 0) {
-        chatList = List.generate(
-          jsonResponse["choices"].length,
-          (index) => ChatModel(
-            msg: jsonResponse["choices"][index]["message"]["content"],
-            chatIndex: 1,
-          ),
-        );
-        // log("jsonResponse[choices]text ${jsonResponse["choices"][0]["message"]}");
+      if (modelId == "dall-e-3") {
+        if (jsonResponse["data"].length > 0) {
+          chatList = List.generate(
+            jsonResponse["data"].length,
+                (index) => ChatModel(
+              msg: jsonResponse["data"][index]["url"],
+              chatIndex: 1,
+                  isURL: 1,
+            ),
+          );
+          // log("jsonResponse[choices]text ${jsonResponse["choices"][0]["message"]}");
+        }
+      } else {
+        if (jsonResponse["choices"].length > 0) {
+          chatList = List.generate(
+            jsonResponse["choices"].length,
+            (index) => ChatModel(
+              msg: jsonResponse["choices"][index]["message"]["content"],
+              chatIndex: 1,
+              isURL: 0,
+            ),
+          );
+          // log("jsonResponse[choices]text ${jsonResponse["choices"][0]["message"]}");
+        }
       }
       return chatList;
     } catch (error) {

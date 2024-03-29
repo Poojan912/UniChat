@@ -30,6 +30,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late FocusNode focusNode;
   late ScrollController _listScrollController;
   late String messg;
+  late String temp;
 
   @override
   void initState() {
@@ -48,6 +49,19 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   List<ChatModel> chatList = [];
+
+  bool isUrl(String text) {
+    // This is a basic pattern and might not cover all valid URL cases.
+    var pattern = r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$';
+    var regExp = RegExp(pattern);
+
+    return regExp.hasMatch(text);
+  }
+
+  bool isImageUrl(String url) {
+    // A basic check for image file extensions in the URL
+    return RegExp(r"\.(jpeg|jpg|gif|png)$", caseSensitive: false).hasMatch(url);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,12 +92,23 @@ class _ChatScreenState extends State<ChatScreen> {
                   controller: _listScrollController,
                   itemCount: chatList.length,
                   itemBuilder: (context, index) {
-                    return ChatWidget(
-                      msg: chatList[index].msg,
-                      chatIndex: chatList[index].chatIndex,
-                    );
+                    if(chatList[index].isURL == 0){
+                      return ChatWidget(
+                        msg: chatList[index].msg,
+                        chatIndex: chatList[index].chatIndex,
+                        isURL: chatList[index].isURL,
+                      );
+                    }else{
+                      return ChatWidget(
+                        msg: chatList[index].msg,
+                        chatIndex: chatList[index].chatIndex,
+                        isURL: chatList[index].isURL,
+                      );
+                    }
+
                   }),
             ),
+
             if (_isTyping) ...[
               const SpinKitThreeBounce(
                 color: Colors.black,
@@ -137,6 +162,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void printChatList(List<ChatModel> chatList) {
     for (ChatModel chatModel in chatList) {
       print(chatModel.msg);
+      print(isUrl(chatModel.msg));
       print("**********");
     }
   }
@@ -156,13 +182,12 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       setState(() {
         _isTyping = true;
-        chatList.add(ChatModel(msg: textEditingController.text, chatIndex: 0));
-        print(
-            "################################################################");
+        chatList.add(ChatModel(msg: textEditingController.text, chatIndex: 0, isURL: 0));
+
         printChatList(chatList);
-        print(
-            "################################################################");
+
         messg = textEditingController.text;
+
         textEditingController.clear();
         focusNode.unfocus();
 
@@ -172,6 +197,14 @@ class _ChatScreenState extends State<ChatScreen> {
         message: messg,
         modelId: modelsProvider.currentModel,
       ));
+
+      for (ChatModel chat in chatList) {
+        print('-----------------------------------------------------------------------------');
+        print('Message: ${chat.msg}');
+        print('Chat Index: ${chat.chatIndex}');
+        print('Is URL: ${chat.isURL}');
+        print('------------------------------------------------------------------------------');
+      }
       setState(() {
         // textEditingController.clear();
       });
@@ -184,6 +217,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
   }
+
 }
 
 // Future<void> sendMessageFCT(ModelsProvider modelsProvider) async {

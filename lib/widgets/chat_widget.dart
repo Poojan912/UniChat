@@ -12,12 +12,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class ChatWidget extends StatelessWidget {
-  const ChatWidget({super.key, required this.msg, required this.chatIndex});
+  const ChatWidget({super.key, required this.msg, required this.chatIndex, required this.isURL});
 
   final String msg;
   final int chatIndex;
+  final int isURL;
 
   get childIndex => null;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +45,7 @@ class ChatWidget extends StatelessWidget {
                     msg,
                     style: const TextStyle(color: Colors.white), // Change font color to white for the user
                   )
-                      : AnimatedTextKit(
+                      : isURL==0 ? AnimatedTextKit(
                     animatedTexts: [
                       TyperAnimatedText(
                         msg.trim(),
@@ -57,6 +60,17 @@ class ChatWidget extends StatelessWidget {
                     repeatForever: false,
                     displayFullTextOnTap: true,
                     totalRepeatCount: 1,
+                  )
+                      : Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      Image.network(msg, height: 250), // Image
+                      IconButton(
+                        // Download Button
+                        icon: Icon(Icons.download, color: Colors.white),
+                        onPressed: () => Null,
+                      ),
+                    ],
                   ),
                 ),
                 if (chatIndex != 0)
