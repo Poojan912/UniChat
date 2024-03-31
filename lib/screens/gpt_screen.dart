@@ -1,12 +1,17 @@
 //import 'dart:ui_web';
 
 import 'dart:developer';
+import 'dart:io';
+import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:unichat/constants/api_consts.dart';
 import 'package:unichat/widgets/chat_widget.dart';
 import 'package:unichat/widgets/text_widget.dart';
 import '../constants/constant.dart';
@@ -30,6 +35,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late FocusNode focusNode;
   late ScrollController _listScrollController;
   late String messg;
+  late String temp;
 
   @override
   void initState() {
@@ -49,6 +55,19 @@ class _ChatScreenState extends State<ChatScreen> {
 
   List<ChatModel> chatList = [];
 
+  bool isUrl(String text) {
+    // This is a basic pattern and might not cover all valid URL cases.
+    var pattern = r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$';
+    var regExp = RegExp(pattern);
+
+    return regExp.hasMatch(text);
+  }
+
+  bool isImageUrl(String url) {
+    // A basic check for image file extensions in the URL
+    return RegExp(r"\.(jpeg|jpg|gif|png)$", caseSensitive: false).hasMatch(url);
+  }
+
   @override
   Widget build(BuildContext context) {
     final modelsProvider = Provider.of<ModelsProvider>(context);
@@ -64,7 +83,12 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           IconButton(
             onPressed: () async {
-              await Services.showModalSheet(context: context);
+              await Services.showModalSheet(context: context).then((value) {
+                print("VALUE :: "+modelsProvider.currentModel);
+                if(modelsProvider.currentModel == "gpt-4-vision-preview") {
+                  _showImageSelectionDialog(modelsProvider);
+                }
+              });
             },
             icon: const Icon(Icons.more_vert_rounded, color: Colors.black),
           ),
@@ -78,12 +102,23 @@ class _ChatScreenState extends State<ChatScreen> {
                   controller: _listScrollController,
                   itemCount: chatList.length,
                   itemBuilder: (context, index) {
-                    return ChatWidget(
-                      msg: chatList[index].msg,
-                      chatIndex: chatList[index].chatIndex,
-                    );
+                    if(chatList[index].isURL == 0){
+                      return ChatWidget(
+                        msg: chatList[index].msg,
+                        chatIndex: chatList[index].chatIndex,
+                        isURL: chatList[index].isURL,
+                      );
+                    }else{
+                      return ChatWidget(
+                        msg: chatList[index].msg,
+                        chatIndex: chatList[index].chatIndex,
+                        isURL: chatList[index].isURL,
+                      );
+                    }
+
                   }),
             ),
+
             if (_isTyping) ...[
               const SpinKitThreeBounce(
                 color: Colors.black,
@@ -123,7 +158,18 @@ class _ChatScreenState extends State<ChatScreen> {
                         icon: const Icon(
                           Icons.send,
                           color: Colors.white,
-                        ))
+                        )),
+                    Visibility(
+                      visible: modelsProvider.currentModel.contains("gpt-4-vision-preview") ? true : false,
+                      child: IconButton(
+                          onPressed: () async {
+                            _showImageSelectionDialog(modelsProvider);
+                          },
+                          icon: const Icon(
+                            Icons.upload_sharp,
+                            color: Colors.white,
+                          )),
+                    )
                   ],
                 ),
               ),
@@ -134,9 +180,71 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  void _showImageSelectionDialog(ModelsProvider modelsProvider) {
+    showDialog<ImageSource>(
+      context: context,
+      builder: (context) => AlertDialog(
+        //content: Text('Choose image source'),
+        alignment: Alignment.center,
+        title: Text("Choose image selection option", ),
+        actions: [
+          ElevatedButton(
+            child: Text('Camera'),
+            onPressed: () {
+              Navigator.pop(context);
+              _uploadImageFromCamera(modelsProvider);
+            },
+          ),
+          ElevatedButton(
+            child: Text('Gallery'),
+            onPressed: () {
+              _uploadImageFromGallery(modelsProvider);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _uploadImageFromCamera(ModelsProvider modelsProvider) async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.getImage(source: ImageSource.camera);
+
+    if (pickedImage != null) {
+      final path = pickedImage.path;
+      String response = await sendImageToGPT4Vision(image: File(path), modelsProvider: modelsProvider);
+      print("RESPONSE :: "+response);
+
+      chatList.add(ChatModel(msg: response, chatIndex: 1, isURL: 0));
+      setState(() {
+        scrollListToEnd();
+        _isTyping = true;
+
+      });
+    }
+  }
+
+  Future<void> _uploadImageFromGallery(ModelsProvider modelsProvider) async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.getImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      final path = pickedImage.path;
+      String response = await sendImageToGPT4Vision(image: File(path), modelsProvider: modelsProvider);
+      print("RESPONSE :: "+response);
+
+      chatList.add(ChatModel(msg: response, chatIndex: 1, isURL: 0));
+      setState(() {
+        scrollListToEnd();
+        _isTyping = false;
+      });
+    }
+  }
+
   void printChatList(List<ChatModel> chatList) {
     for (ChatModel chatModel in chatList) {
       print(chatModel.msg);
+      print(isUrl(chatModel.msg));
       print("**********");
     }
   }
@@ -156,13 +264,12 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       setState(() {
         _isTyping = true;
-        chatList.add(ChatModel(msg: textEditingController.text, chatIndex: 0));
-        print(
-            "################################################################");
+        chatList.add(ChatModel(msg: textEditingController.text, chatIndex: 0, isURL: 0));
+
         printChatList(chatList);
-        print(
-            "################################################################");
+
         messg = textEditingController.text;
+
         textEditingController.clear();
         focusNode.unfocus();
 
@@ -172,6 +279,14 @@ class _ChatScreenState extends State<ChatScreen> {
         message: messg,
         modelId: modelsProvider.currentModel,
       ));
+
+      for (ChatModel chat in chatList) {
+        print('-----------------------------------------------------------------------------');
+        print('Message: ${chat.msg}');
+        print('Chat Index: ${chat.chatIndex}');
+        print('Is URL: ${chat.isURL}');
+        print('------------------------------------------------------------------------------');
+      }
       setState(() {
         // textEditingController.clear();
       });
@@ -184,6 +299,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
   }
+
 }
 
 // Future<void> sendMessageFCT(ModelsProvider modelsProvider) async {
