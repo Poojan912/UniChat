@@ -1,12 +1,17 @@
 //import 'dart:ui_web';
 
 import 'dart:developer';
+import 'dart:io';
+import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:unichat/constants/api_consts.dart';
 import 'package:unichat/widgets/chat_widget.dart';
 import 'package:unichat/widgets/text_widget.dart';
 import '../constants/constant.dart';
@@ -78,7 +83,12 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           IconButton(
             onPressed: () async {
-              await Services.showModalSheet(context: context);
+              await Services.showModalSheet(context: context).then((value) {
+                print("VALUE :: "+modelsProvider.currentModel);
+                if(modelsProvider.currentModel == "gpt-4-vision-preview") {
+                  _showImageSelectionDialog(modelsProvider);
+                }
+              });
             },
             icon: const Icon(Icons.more_vert_rounded, color: Colors.black),
           ),
@@ -148,7 +158,18 @@ class _ChatScreenState extends State<ChatScreen> {
                         icon: const Icon(
                           Icons.send,
                           color: Colors.white,
-                        ))
+                        )),
+                    Visibility(
+                      visible: modelsProvider.currentModel.contains("gpt-4-vision-preview") ? true : false,
+                      child: IconButton(
+                          onPressed: () async {
+                            _showImageSelectionDialog(modelsProvider);
+                          },
+                          icon: const Icon(
+                            Icons.upload_sharp,
+                            color: Colors.white,
+                          )),
+                    )
                   ],
                 ),
               ),
@@ -157,6 +178,67 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
     );
+  }
+
+  void _showImageSelectionDialog(ModelsProvider modelsProvider) {
+    showDialog<ImageSource>(
+      context: context,
+      builder: (context) => AlertDialog(
+        //content: Text('Choose image source'),
+        alignment: Alignment.center,
+        title: Text("Choose image selection option", ),
+        actions: [
+          ElevatedButton(
+            child: Text('Camera'),
+            onPressed: () {
+              Navigator.pop(context);
+              _uploadImageFromCamera(modelsProvider);
+            },
+          ),
+          ElevatedButton(
+            child: Text('Gallery'),
+            onPressed: () {
+              _uploadImageFromGallery(modelsProvider);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _uploadImageFromCamera(ModelsProvider modelsProvider) async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.getImage(source: ImageSource.camera);
+
+    if (pickedImage != null) {
+      final path = pickedImage.path;
+      String response = await sendImageToGPT4Vision(image: File(path), modelsProvider: modelsProvider);
+      print("RESPONSE :: "+response);
+
+      chatList.add(ChatModel(msg: response, chatIndex: 1, isURL: 0));
+      setState(() {
+        scrollListToEnd();
+        _isTyping = true;
+
+      });
+    }
+  }
+
+  Future<void> _uploadImageFromGallery(ModelsProvider modelsProvider) async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.getImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      final path = pickedImage.path;
+      String response = await sendImageToGPT4Vision(image: File(path), modelsProvider: modelsProvider);
+      print("RESPONSE :: "+response);
+
+      chatList.add(ChatModel(msg: response, chatIndex: 1, isURL: 0));
+      setState(() {
+        scrollListToEnd();
+        _isTyping = false;
+      });
+    }
   }
 
   void printChatList(List<ChatModel> chatList) {

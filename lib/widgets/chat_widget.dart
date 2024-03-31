@@ -1,12 +1,18 @@
+import 'dart:io';
 import 'dart:ui';
 
 // import 'dart:ui_web';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_file_downloader/flutter_file_downloader.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:unichat/constants/constant.dart';
 import 'package:unichat/services/assets_manager.dart';
+import 'package:http/http.dart' as http;
 import 'package:unichat/widgets/text_widget.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -19,8 +25,6 @@ class ChatWidget extends StatelessWidget {
   final int isURL;
 
   get childIndex => null;
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +72,39 @@ class ChatWidget extends StatelessWidget {
                       IconButton(
                         // Download Button
                         icon: Icon(Icons.download, color: Colors.white),
-                        onPressed: () => Null,
+                        onPressed: () {
+                          // Future.delayed(const Duration(seconds: 0), () async {
+                          //   print("DOWNLOAD URL :: "+msg);
+                          //   //storeImageInLocally(msg);
+                          //   EasyLoading.show();
+                          //   var response = await Dio().get(msg,
+                          //       options: Options(responseType: ResponseType.bytes));
+                          //   EasyLoading.dismiss();
+                          //   EasyLoading.showSuccess("Image downloaded to gallery successfully!", duration: const Duration(seconds: 3));
+                          //   await ImageGallerySaver.saveImage(
+                          //       Uint8List.fromList(response.data),
+                          //       quality: 100,
+                          //       name: DateTime.now().toString()
+                          //   );
+                          // });
+                          EasyLoading.show();
+                          FileDownloader.downloadFile(
+                              url: msg,
+                              name: DateTime.now().toString(),//(optional)
+                              onProgress: (String? fileName, double progress) {
+                                print('FILE fileName HAS PROGRESS $progress');
+                              },
+                              onDownloadCompleted: (String path) {
+                                print('FILE DOWNLOADED TO PATH: $path');
+                                EasyLoading.dismiss();
+                                EasyLoading.showSuccess("Image downloaded successfully to "+path, duration: const Duration(seconds: 3));
+                              },
+                              onDownloadError: (String error) {
+                                print('DOWNLOAD ERROR: $error');
+                                EasyLoading.dismiss();
+                                EasyLoading.showSuccess(""+error, duration: const Duration(seconds: 3));
+                              });
+                        },
                       ),
                     ],
                   ),
@@ -188,5 +224,32 @@ class ChatWidget extends StatelessWidget {
         );
       },
     );
+  }
+
+  void storeImageInLocally(String imageURL) async {
+    try {
+      String timeStamp = DateTime.now().toString();
+      EasyLoading.show();
+      /*var response = await Dio().get(imageUrl,
+        options: Options(responseType: ResponseType.bytes));*/
+      var url = imageURL;
+      var response = await http.get(Uri.parse(url)); // get(Uri.parse(url))
+      var documentDirectory = await getApplicationDocumentsDirectory();
+      var firstPath = documentDirectory.path + "/images";
+      var filePathAndName = documentDirectory.path + '/images/pic.jpg';
+      //comment out the next three lines to prevent the image from being saved
+      //to the device to show that it's coming from the internet
+      await Directory(firstPath).create(recursive: true); // <-- 1
+      File file2 = new File(filePathAndName);             // <-- 2
+      file2.writeAsBytesSync(response.bodyBytes);         // <-- 3
+      EasyLoading.dismiss();
+      EasyLoading.showSuccess("File downloaded successfully");
+      //print("New Path :: "+file2.path);
+    } catch (error) {
+      EasyLoading.dismiss();
+      EasyLoading.showError("Image not found");
+      print(error.toString());
+    }
+
   }
 }

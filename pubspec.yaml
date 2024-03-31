@@ -46,7 +46,9 @@ dependencies:
   permission_handler: ^10.0.0
   path_provider: ^2.0.8
   image_picker: ^0.8.5+3
+  dio: ^5.3.3
   flutter_file_downloader: ^1.2.1
+  flutter_easyloading: ^3.0.5
 
 dev_dependencies:
   flutter_test:
