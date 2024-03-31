@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:unichat/forgotpassword_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:unichat/home_page.dart';
 import 'package:unichat/signup_page.dart';
 
 class signin_page extends StatefulWidget {
@@ -10,29 +12,62 @@ class signin_page extends StatefulWidget {
 }
 
 class _signin_pageState extends State<signin_page> {
+
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset : false,
       appBar: AppBar(
-        title: Text(
-          "UniChat",
-          style: TextStyle(fontSize: 40),
+        title : Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Image.asset('assets/image/image_no_bg.png',width: 60,fit: BoxFit.contain,),
+
+            Text(
+              "UniChat",
+              style: TextStyle(fontSize: 40),
+            )
+          ],
         ),
-        centerTitle: true,
       ),
       body: Padding(
-        padding: EdgeInsets.only(top: 120.20, left: 20.0, right: 20.0),
+        padding: EdgeInsets.only(left: 20.0, right: 20.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Text("Login",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
-                textAlign: TextAlign.center),
+            Text(
+              "Login",
+              style: TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+                letterSpacing: 1.5,
+                shadows: [
+                  Shadow(
+                    blurRadius: 10.0,
+                    color: Colors.black.withOpacity(0.3),
+                    offset: Offset(5, 5),
+                  ),
+                ],
+                fontFamily: "Arial",
+              ),
+              textAlign: TextAlign.center,
+            ),
             Padding(
                 padding: EdgeInsets.only(top: 30.0, left: 20.0, right: 20.0),
                 child: TextFormField(
+                  controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
                     prefixIcon: Icon(Icons.email),
@@ -43,6 +78,7 @@ class _signin_pageState extends State<signin_page> {
             Padding(
                 padding: EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: TextFormField(
+                  controller: _passwordController,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     prefixIcon: Icon(Icons.password),
@@ -57,6 +93,20 @@ class _signin_pageState extends State<signin_page> {
                 child: ElevatedButton(
                   onPressed: () {
                     // Handle Sign-In logic
+
+                    FirebaseAuth.instance.signInWithEmailAndPassword(
+                      email: _emailController.text,
+                      password: _passwordController.text,
+                    ).then((value) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sign In Successful')));
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>home_page()));
+
+                    }).onError((error, stackTrace) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Email/Password wrong')));
+                    });
+
+
+
                   },
                   child: Text('Sign In'),
                 )
@@ -68,8 +118,8 @@ class _signin_pageState extends State<signin_page> {
                  },
                  child: Text(
                    'Forgot password',textAlign: TextAlign.right,style: TextStyle(
-                   color: Colors.deepPurple, // Adjust the color as needed
-                   decoration: TextDecoration.underline, // Underline to mimic hyperlink
+                   color: Colors.deepPurple,
+                   decoration: TextDecoration.underline,
                  ),
                  ),
                ),
@@ -79,7 +129,7 @@ class _signin_pageState extends State<signin_page> {
             Padding(
                 padding: EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                 child: ElevatedButton.icon(
-                  icon: Icon(Icons.email), // Placeholder icon for Google
+                  icon: Icon(Icons.email),
                   label: Text('Google'),
                   onPressed: () {
                     // Handle Google Sign-In logic
@@ -104,13 +154,12 @@ class _signin_pageState extends State<signin_page> {
               },
               child: Text(
                 'Don\'t have account?? Sign Up',textAlign: TextAlign.center,style: TextStyle(
-                color: Colors.deepPurple, // Adjust the color as needed
-                decoration: TextDecoration.underline, // Underline to mimic hyperlink
+                color: Colors.deepPurple,
+                decoration: TextDecoration.underline,
               ),
               ),
             ),
             )
-
           ],
         ),
       ),
